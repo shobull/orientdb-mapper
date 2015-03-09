@@ -8,7 +8,7 @@ import cz.cvut.palislub.annotations.Relationship;
  * User: L
  * Date: 18. 2. 2015
  */
-@Relationship(type = "buy")
+@Relationship(type = "buy", unique = true)
 public class Buying {
 
 	@NodeFrom

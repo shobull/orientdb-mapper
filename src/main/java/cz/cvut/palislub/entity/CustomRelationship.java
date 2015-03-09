@@ -19,6 +19,8 @@ public class CustomRelationship {
 
 	private String nodeLabelTo;
 
+	private boolean unique;
+
 	private Map<String, Object> properties = new HashMap();
 
 	public String getLabel() {
@@ -75,5 +77,13 @@ public class CustomRelationship {
 
 	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
+	}
+
+	public boolean isUnique() {
+		return unique;
+	}
+
+	public void setUnique(boolean unique) {
+		this.unique = unique;
 	}
 }

@@ -1,22 +1,23 @@
 package cz.cvut.palislub.persist;
 
+import com.google.common.collect.Iterables;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.tinkerpop.blueprints.*;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Parameter;
+import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientEdgeType;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import cz.cvut.palislub.entity.CustomNode;
 import cz.cvut.palislub.entity.CustomRelationship;
-import cz.cvut.palislub.example.domain.User;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 /**
  * User: L
@@ -74,12 +75,31 @@ public class OrientDbManager {
 		Vertex vertextFrom = getNode(relationship.getNodeLabelFrom(), relationship.getNodeValueFrom());
 		Vertex vertexTo = getNode(relationship.getNodeLabelTo(), relationship.getNodeValueTo());
 
-		Edge edge = graph.addEdge(null, vertextFrom, vertexTo, relationship.getLabel());
+		Iterable<Edge> outcomingEdges = vertextFrom.getEdges(Direction.OUT, relationship.getLabel());
+		Iterable<Edge> incomingEdges = vertexTo.getEdges(Direction.IN, relationship.getLabel());
+
+		Edge edge = null;
+
+		if (relationship.isUnique()) {
+			for (Edge outEdge : outcomingEdges) {
+				if (Iterables.contains(incomingEdges, outEdge)) {
+					edge = outEdge;
+					System.out.println("HRANA " + outEdge + " EXISTUJE!!! POUZE UPRAVUJI");
+					break;
+				}
+			}
+		}
+
+		if (edge == null) {
+			edge = graph.addEdge(null, vertextFrom, vertexTo, relationship.getLabel());
+			System.out.println("UKLADAM DO DB HRANU: " + edge);
+		}
+
 		for (String key : relationship.getProperties().keySet()) {
 			edge.setProperty(key, relationship.getProperty(key));
 		}
 
-		System.out.println("UKLADAM DO DB HRANU: " + edge);
+
 	}
 
 	public long count(Class clazz) {
@@ -91,7 +111,6 @@ public class OrientDbManager {
 	}
 
 	public void load() {
-
 		GremlinPipeline pipe = new GremlinPipeline();
 		pipe.start(getNode("User.userId", 1)).out("buy").property("name");
 

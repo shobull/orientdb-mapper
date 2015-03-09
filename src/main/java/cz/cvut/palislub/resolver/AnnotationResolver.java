@@ -43,6 +43,10 @@ public class AnnotationResolver {
 		return type.getAnnotation(Node.class).name();
 	}
 
+	public boolean isRelationshipUnique(Class<?> type) {
+		return type.getAnnotation(Relationship.class).unique();
+	}
+
 	public boolean isIndexed(Field field) {
 		return field.isAnnotationPresent(Indexed.class);
 	}

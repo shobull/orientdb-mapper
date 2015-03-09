@@ -26,9 +26,16 @@ public class OrientDbConvertor {
 			for (Field f : entity.getClass().getDeclaredFields()) {
 				if (annotationResolver.isNodeProperty(f)) {
 					f.setAccessible(true);
+					if (f.get(entity) == null) {
+						continue;
+					}
 					customNode.addProperty(f.getName(), f.get(entity));
 
-					if (annotationResolver.isUnique(f) && customNode.getUniqueKey() == null) {
+					if (annotationResolver.isUnique(f)) {
+						if (customNode.getUniqueKey() != null) {
+							throw new IllegalArgumentException("Trida musi obsahovat pouze jednu anotaci @Unique.");
+						}
+
 						customNode.setUniqueKey(f.getName());
 					}
 
@@ -66,6 +73,9 @@ public class OrientDbConvertor {
 		String label = annotationResolver.getRelationshipType(entity.getClass());
 		customRelationship.setLabel(label);
 
+		boolean unique = annotationResolver.isRelationshipUnique(entity.getClass());
+		customRelationship.setUnique(unique);
+
 		try {
 			for (Field f : entity.getClass().getDeclaredFields()) {
 				f.setAccessible(true);
@@ -86,6 +96,9 @@ public class OrientDbConvertor {
 					customRelationship.setNodeLabelTo(nodeLabelFrom);
 					customRelationship.setNodeValueTo(nodeValueFrom);
 				} else if (annotationResolver.isRelationshopProperty(f)) {
+					if (f.get(entity) == null) {
+						continue;
+					}
 					customRelationship.addProperty(f.getName(), f.get(entity));
 				}
 			}

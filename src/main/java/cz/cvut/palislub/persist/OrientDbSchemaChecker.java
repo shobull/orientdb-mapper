@@ -10,6 +10,8 @@ import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
@@ -33,6 +35,9 @@ public class OrientDbSchemaChecker {
 
 	OrientDbManager graphManager;
 
+	Logger logger = LoggerFactory.getLogger(OrientDbSchemaChecker.class);
+
+
 	public void setScannedPackage(String scannedPackage) {
 		this.scannedPackage = scannedPackage;
 	}
@@ -48,7 +53,9 @@ public class OrientDbSchemaChecker {
 
 		checkVertexTypes(reflections);
 		checkEdgeTypes(reflections);
-		System.out.println("OrientDB schema check completed.");
+		logger.info("OrientDB schema check completed. INFO");
+
+		logger.debug("OrientDB schema check completed.");
 	}
 
 	private void checkEdgeTypes(Reflections reflections) {

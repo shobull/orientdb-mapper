@@ -1,6 +1,5 @@
 package cz.cvut.palislub.example.domain;
 
-import cz.cvut.palislub.annotations.Indexed;
 import cz.cvut.palislub.annotations.Node;
 import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;

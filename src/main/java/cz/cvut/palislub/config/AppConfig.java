@@ -1,9 +1,7 @@
 package cz.cvut.palislub.config;
 
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import cz.cvut.palislub.persist.OrientDbConvertor;
 import cz.cvut.palislub.persist.OrientDbManager;
 import cz.cvut.palislub.persist.OrientDbPersister;
@@ -46,7 +44,7 @@ public class AppConfig {
 	@Bean
 	public OrientDbManager graphManager() {
 		OrientDbManager graphManager = new OrientDbManager();
-		OrientGraphFactory factory = new OrientGraphFactory("plocal:D:/Prace/graphDB/dip/testdb");
+		OrientGraphFactory factory = new OrientGraphFactory("plocal:C:/Lubos/db");
 		OrientGraphNoTx graph = factory.getNoTx();
 		graphManager.setGraph(graph);
 		return graphManager;

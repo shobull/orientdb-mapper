@@ -14,4 +14,6 @@ import java.lang.annotation.Target;
 public @interface Relationship {
 
 	String type();
+
+	boolean unique() default false;
 }

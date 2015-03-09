@@ -50,19 +50,19 @@ public class Main {
 		GenericGraphRepo genericGraphRepo = ctx.getBean(GenericGraphRepo.class);
 //		genericGraphRepo.save(user);
 
-//		genericGraphRepo.clearDatabase();
+	//		genericGraphRepo.clearDatabase();
 
 		List<User> users = new ArrayList();
 		users.add(user);
 		users.add(user2);
 //
-		genericGraphRepo.save(users);
-		genericGraphRepo.save(product);
-		genericGraphRepo.save(product2);
+//		genericGraphRepo.save(users);
+//		genericGraphRepo.save(product);
+//		genericGraphRepo.save(product2);
 		genericGraphRepo.save(buying);
 		genericGraphRepo.save(buying3);
 
-		genericGraphRepo.loadTest();
+//		genericGraphRepo.loadTest();
 
 //		System.out.println(genericGraphRepo.count(User.class));
 
