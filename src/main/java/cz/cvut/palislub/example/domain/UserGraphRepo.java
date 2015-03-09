@@ -8,4 +8,7 @@ import cz.cvut.palislub.repository.GenericGraphRepo;
  */
 public class UserGraphRepo extends GenericGraphRepo<User> {
 
+	public UserGraphRepo() {
+		super(User.class);
+	}
 }

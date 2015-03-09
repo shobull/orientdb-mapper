@@ -37,7 +37,6 @@ public class OrientDbSchemaChecker {
 
 	Logger logger = LoggerFactory.getLogger(OrientDbSchemaChecker.class);
 
-
 	public void setScannedPackage(String scannedPackage) {
 		this.scannedPackage = scannedPackage;
 	}

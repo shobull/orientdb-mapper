@@ -55,6 +55,15 @@ public class AnnotationResolver {
 		return field.isAnnotationPresent(Unique.class);
 	}
 
+	public String getUniquePropertyName(Class<?> type) {
+		for (Field f : type.getDeclaredFields()) {
+			if (isUnique(f)) {
+				return f.getName();
+			}
+		}
+		return null;
+	}
+
 	public String getRelationshipType(Class<?> type) {
 		return type.getAnnotation(Relationship.class).type();
 	}

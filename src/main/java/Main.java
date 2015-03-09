@@ -2,6 +2,7 @@ import cz.cvut.palislub.config.AppConfig;
 import cz.cvut.palislub.example.domain.Buying;
 import cz.cvut.palislub.example.domain.Product;
 import cz.cvut.palislub.example.domain.User;
+import cz.cvut.palislub.example.domain.UserGraphRepo;
 import cz.cvut.palislub.repository.GenericGraphRepo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -47,20 +48,27 @@ public class Main {
 
 		ApplicationContext ctx =
 				new AnnotationConfigApplicationContext(AppConfig.class);
+		UserGraphRepo userGraphRepo = ctx.getBean(UserGraphRepo.class);
 		GenericGraphRepo genericGraphRepo = ctx.getBean(GenericGraphRepo.class);
 //		genericGraphRepo.save(user);
 
-	//		genericGraphRepo.clearDatabase();
+		//		genericGraphRepo.clearDatabase();
 
 		List<User> users = new ArrayList();
 		users.add(user);
 		users.add(user2);
 //
-//		genericGraphRepo.save(users);
-//		genericGraphRepo.save(product);
+		userGraphRepo.save(users);
+		genericGraphRepo.save(product);
 //		genericGraphRepo.save(product2);
 		genericGraphRepo.save(buying);
-		genericGraphRepo.save(buying3);
+//		userGraphRepo.save(buying3);
+
+		userGraphRepo.delete(5);
+
+		for (Object o : userGraphRepo.listVertexIds()) {
+			System.out.println(o);
+		}
 
 //		genericGraphRepo.loadTest();
 

@@ -2,11 +2,11 @@ package cz.cvut.palislub.config;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import cz.cvut.palislub.example.domain.UserGraphRepo;
 import cz.cvut.palislub.persist.OrientDbConvertor;
 import cz.cvut.palislub.persist.OrientDbManager;
 import cz.cvut.palislub.persist.OrientDbPersister;
 import cz.cvut.palislub.persist.OrientDbSchemaChecker;
-import cz.cvut.palislub.repository.GenericGraphRepo;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +19,8 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
 
 	@Bean
-	public GenericGraphRepo genericGraphRepo() {
-		return new GenericGraphRepo();
+	public UserGraphRepo userGraphRepo() {
+		return new UserGraphRepo();
 	}
 
 	@Bean

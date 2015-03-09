@@ -75,6 +75,10 @@ public class OrientDbManager {
 		Vertex vertextFrom = getNode(relationship.getNodeLabelFrom(), relationship.getNodeValueFrom());
 		Vertex vertexTo = getNode(relationship.getNodeLabelTo(), relationship.getNodeValueTo());
 
+		if (vertextFrom == null || vertexTo == null) {
+			throw new NullPointerException("Pri ukladani hrany nastala chyba: Vychozi uzel (" + vertextFrom + ") nebo cilovy uzel (" + vertexTo + ") je null.");
+		}
+
 		Iterable<Edge> outcomingEdges = vertextFrom.getEdges(Direction.OUT, relationship.getLabel());
 		Iterable<Edge> incomingEdges = vertexTo.getEdges(Direction.IN, relationship.getLabel());
 
@@ -195,5 +199,16 @@ public class OrientDbManager {
 			return customType.createProperty(fieldname, OType.ANY);
 		}
 		return graph.getEdgeType(typename).getProperty(fieldname);
+	}
+
+	public Iterable<Vertex> listVertices(String typename) {
+		return graph.getVerticesOfClass(typename);
+	}
+
+	public void delete(String typename, String fieldname, Object value) {
+		Iterable<Vertex> verticesToDelete = graph.getVertices(typename + "." + fieldname, value);
+		for (Vertex v : verticesToDelete) {
+			v.remove();
+		}
 	}
 }
