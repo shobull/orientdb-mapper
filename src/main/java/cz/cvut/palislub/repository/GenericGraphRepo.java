@@ -9,7 +9,7 @@ import java.util.List;
  * User: L
  * Date: 16. 2. 2015
  */
-public abstract class GenericGraphRepo<T> {
+public abstract class GenericGraphRepo<T, ID> {
 
 	@Autowired
 	private OrientDbPersister persister;
@@ -36,17 +36,17 @@ public abstract class GenericGraphRepo<T> {
 		return entities;
 	}
 
-	public List<Object> listVertexIds() {
+	public List<ID> listVertexIds() {
 		return persister.listVertices(clazz);
 	}
 
-	public void delete(List<Object> ids) {
-		for (Object o : ids) {
+	public void delete(List<ID> ids) {
+		for (ID o : ids) {
 			delete(o);
 		}
 	}
 
-	public void delete(Object id) {
+	public void delete(ID id) {
 		persister.delete(clazz, id);
 	}
 
@@ -57,4 +57,6 @@ public abstract class GenericGraphRepo<T> {
 	public void clearDatabase() {
 		persister.clearDatabase();
 	}
+
+
 }

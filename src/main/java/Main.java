@@ -2,8 +2,8 @@ import cz.cvut.palislub.config.AppConfig;
 import cz.cvut.palislub.example.domain.Buying;
 import cz.cvut.palislub.example.domain.Product;
 import cz.cvut.palislub.example.domain.User;
-import cz.cvut.palislub.example.domain.UserGraphRepo;
-import cz.cvut.palislub.repository.GenericGraphRepo;
+import cz.cvut.palislub.example.repo.ProductGraphRepo;
+import cz.cvut.palislub.example.repo.UserGraphRepo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -49,7 +49,7 @@ public class Main {
 		ApplicationContext ctx =
 				new AnnotationConfigApplicationContext(AppConfig.class);
 		UserGraphRepo userGraphRepo = ctx.getBean(UserGraphRepo.class);
-		GenericGraphRepo genericGraphRepo = ctx.getBean(GenericGraphRepo.class);
+		ProductGraphRepo productGraphRepo = ctx.getBean(ProductGraphRepo.class);
 //		genericGraphRepo.save(user);
 
 		//		genericGraphRepo.clearDatabase();
@@ -58,16 +58,21 @@ public class Main {
 		users.add(user);
 		users.add(user2);
 //
+
+		List<Buying> buyings = new ArrayList();
+		buyings.add(buying);
+		buyings.add(buying3);
+
 		userGraphRepo.save(users);
-		genericGraphRepo.save(product);
-//		genericGraphRepo.save(product2);
-		genericGraphRepo.save(buying);
+		productGraphRepo.save(product);
+		productGraphRepo.save(product2);
+		userGraphRepo.saveBuyings(buyings);
 //		userGraphRepo.save(buying3);
 
-		userGraphRepo.delete(5);
+		userGraphRepo.delete("5");
 
 		for (Object o : userGraphRepo.listVertexIds()) {
-			System.out.println(o);
+			System.out.println(o + " " + o.getClass());
 		}
 
 //		genericGraphRepo.loadTest();

@@ -9,9 +9,24 @@
 	<version>1.0-SNAPSHOT</version>
 
 	<properties>
-		<spring.version>3.2.3.RELEASE</spring.version>
+		<spring.version>4.1.5.RELEASE</spring.version>
 	</properties>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>cz/cvut/palislub/example/**</exclude>
+						<exclude>cz/cvut/palislub/config/**</exclude>
+						<exclude>Main.class</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 
@@ -113,7 +128,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 
 	</dependencies>
 

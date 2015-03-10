@@ -66,13 +66,13 @@ public class OrientDbPersister {
 		return annotationResolver.isRelationshopEntity(type);
 	}
 
-	public List<Object> listVertices(Class<?> type) {
+	public List listVertices(Class<?> type) {
 		if (!annotationResolver.isNodeEntity(type)) {
 			throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node.");
 		}
 		Iterable<Vertex> vertices = graphManager.listVertices(annotationResolver.getNodeName(type));
 
-		List<Object> ids = Lists.newArrayList();
+		List ids = Lists.newArrayList();
 		for (Vertex v : vertices) {
 			ids.add(v.getProperty(annotationResolver.getUniquePropertyName(type)));
 		}
