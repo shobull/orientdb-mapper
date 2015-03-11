@@ -25,10 +25,6 @@ public abstract class GenericGraphRepo<T, ID> {
 		return t;
 	}
 
-	public void saveRelationship(Object entity) {
-		persister.saveRelationship(entity);
-	}
-
 	public Iterable<T> save(Iterable<T> entities) {
 		for (T entity : entities) {
 			save(entity);
@@ -36,18 +32,30 @@ public abstract class GenericGraphRepo<T, ID> {
 		return entities;
 	}
 
+	public void saveRelationship(Object entity) {
+		persister.saveRelationship(entity);
+	}
+
 	public List<ID> listVertexIds() {
 		return persister.listVertices(clazz);
+	}
+
+	public List<ID> getIdsOfVertexByProperty(String propertyName, Object value) {
+		return persister.getIdsOfVertexByProperty(clazz, propertyName, value);
+	}
+
+	public T get(ID id) {
+		return (T) persister.get(clazz, id);
+	}
+
+	public void delete(ID id) {
+		persister.delete(clazz, id);
 	}
 
 	public void delete(List<ID> ids) {
 		for (ID o : ids) {
 			delete(o);
 		}
-	}
-
-	public void delete(ID id) {
-		persister.delete(clazz, id);
 	}
 
 	public long count() {

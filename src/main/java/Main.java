@@ -24,7 +24,7 @@ public class Main {
 
 		User user2 = new User();
 		user2.setUserId("2");
-		user2.setName("Petr");
+		user2.setName("Lubos2");
 
 		Product product = new Product();
 		product.setProductId(1);
@@ -69,7 +69,8 @@ public class Main {
 		userGraphRepo.saveBuyings(buyings);
 //		userGraphRepo.save(buying3);
 
-		userGraphRepo.delete("5");
+		System.out.println(userGraphRepo.get("8"));
+
 
 		for (Object o : userGraphRepo.listVertexIds()) {
 			System.out.println(o + " " + o.getClass());

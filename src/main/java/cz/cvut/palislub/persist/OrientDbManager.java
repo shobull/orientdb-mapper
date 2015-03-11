@@ -1,6 +1,7 @@
 package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.Direction;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * User: L
@@ -69,6 +72,18 @@ public class OrientDbManager {
 
 	private Vertex getNode(String key, Object value) {
 		return graph.getVertexByKey(key, value);
+	}
+
+
+	public List<Object> getIdsOfVertexByProperty(Class type, String propertyName, Object value) {
+		System.out.println("Hledam uzly na zaklade " + type.getSimpleName() + " a hodnoty " + value);
+		Iterable<Vertex> vertices = graph.getVertices(type.getSimpleName() + "." + propertyName, value);
+
+		if (vertices == null) {
+			return null;
+		}
+
+		return Lists.newArrayList(vertices).stream().map(vertex -> vertex.getProperty(annotationResolver.getUniquePropertyName(type))).collect(Collectors.toList());
 	}
 
 	public void createRelationship(CustomRelationship relationship) {
@@ -210,5 +225,9 @@ public class OrientDbManager {
 		for (Vertex v : verticesToDelete) {
 			v.remove();
 		}
+	}
+
+	public Vertex getById(String typename, String fieldname, Object id) {
+		return graph.getVertexByKey(typename + "." + fieldname, id);
 	}
 }

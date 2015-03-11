@@ -7,6 +7,7 @@ import cz.cvut.palislub.entity.CustomRelationship;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 /**
@@ -43,21 +44,6 @@ public class OrientDbPersister {
 		}
 	}
 
-	public long count(Class clazz) {
-		if (isNodeEntity(clazz) || isRelationshopEntity(clazz)) {
-			return graphManager.count(clazz);
-		}
-		throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node nebo @Relationship.");
-	}
-
-	public long countVertices() {
-		return graphManager.countVertices();
-	}
-
-	public long countEdges() {
-		return graphManager.countEdges();
-	}
-
 	public boolean isNodeEntity(Class<?> type) {
 		return annotationResolver.isNodeEntity(type);
 	}
@@ -80,15 +66,82 @@ public class OrientDbPersister {
 		return ids;
 	}
 
-	public void clearDatabase() {
-		System.out.println("MAZU DATABAZI");
-		graphManager.clearDatabase();
-		System.out.println("V DB ZBYLO: " + countVertices() + " uzlu a " + countEdges() + " hran");
-	}
-
 	public void delete(Class clazz, Object id) {
 		String classname = annotationResolver.getNodeName(clazz);
 		String property = annotationResolver.getUniquePropertyName(clazz);
 		graphManager.delete(classname, property, id);
+	}
+
+	public List getIdsOfVertexByProperty(Class<?> type, String propertyName, Object value) {
+		if (!annotationResolver.hasProperty(type, propertyName)) {
+			throw new IllegalArgumentException("Trida " + type.getName() + " nema promennou " + propertyName + " anotovanou jako @NodeProperty.");
+		}
+
+		return graphManager.getIdsOfVertexByProperty(type, propertyName, value);
+	}
+
+
+	private static boolean set(Object object, String fieldName, Object fieldValue) {
+		Class<?> clazz = object.getClass();
+		while (clazz != null) {
+			try {
+				Field field = clazz.getDeclaredField(fieldName);
+				field.setAccessible(true);
+				field.set(object, fieldValue);
+				return true;
+			} catch (NoSuchFieldException e) {
+				clazz = clazz.getSuperclass();
+			} catch (Exception e) {
+				throw new IllegalStateException(e);
+			}
+		}
+		return false;
+	}
+
+
+	public Object get(Class<?> clazz, Object id) {
+		Vertex vertex = graphManager.getById(annotationResolver.getNodeName(clazz), annotationResolver.getUniquePropertyName(clazz), id);
+		if (vertex == null) {
+			return null;
+		}
+
+		Object newInstance = null;
+		try {
+			newInstance = clazz.newInstance();
+
+			for (Field f : clazz.getDeclaredFields()) {
+				if (annotationResolver.isNodeProperty(f)) {
+					set(newInstance, f.getName(), vertex.getProperty(f.getName()));
+				}
+			}
+
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+
+		return newInstance;
+	}
+
+	public long count(Class clazz) {
+		if (isNodeEntity(clazz) || isRelationshopEntity(clazz)) {
+			return graphManager.count(clazz);
+		}
+		throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node nebo @Relationship.");
+	}
+
+	public long countEdges() {
+		return graphManager.countEdges();
+	}
+
+	public long countVertices() {
+		return graphManager.countVertices();
+	}
+
+	public void clearDatabase() {
+		System.out.println("MAZU DATABAZI");
+		graphManager.clearDatabase();
+		System.out.println("V DB ZBYLO: " + countVertices() + " uzlu a " + countEdges() + " hran");
 	}
 }

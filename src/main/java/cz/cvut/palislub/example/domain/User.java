@@ -33,4 +33,13 @@ public class User {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("User{");
+		sb.append("name='").append(name).append('\'');
+		sb.append(", userId='").append(userId).append('\'');
+		sb.append('}');
+		return sb.toString();
+	}
 }

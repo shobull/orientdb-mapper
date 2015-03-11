@@ -64,6 +64,15 @@ public class AnnotationResolver {
 		return null;
 	}
 
+	public boolean hasProperty(Class<?> type, String propertyName) {
+		for (Field f : type.getDeclaredFields()) {
+			if (propertyName.equals(f.getName()) && f.isAnnotationPresent(NodeProperty.class)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public String getRelationshipType(Class<?> type) {
 		return type.getAnnotation(Relationship.class).type();
 	}
@@ -76,9 +85,8 @@ public class AnnotationResolver {
 		return field.isAnnotationPresent(NodeTo.class);
 	}
 
+
 	public boolean isRelationshopProperty(Field field) {
 		return field.isAnnotationPresent(RelationshipProperty.class);
 	}
-
-
 }
