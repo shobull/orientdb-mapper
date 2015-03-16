@@ -1,15 +1,14 @@
-package cz.cvut.palislub.example.domain;
+package cz.cvut.palislub.example.domain.nodes;
 
 import cz.cvut.palislub.annotations.Node;
 import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;
 
 /**
- * User: L
- * Date: 18. 2. 2015
+ * Created by lubos on 1.3.2015.
  */
 @Node(name = "Product")
-public class Product {
+public class GraphProduct {
 
 	@NodeProperty
 	@Unique
@@ -17,6 +16,16 @@ public class Product {
 
 	@NodeProperty
 	private String name;
+
+	@NodeProperty
+	private long priceWithVat;
+
+	@NodeProperty
+	private long recommended;
+
+	public GraphProduct(long productId) {
+		this.productId = productId;
+	}
 
 	public long getProductId() {
 		return productId;
@@ -26,11 +35,16 @@ public class Product {
 		this.productId = productId;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public void setPriceWithVat(Long priceWithVat) {
+		this.priceWithVat = priceWithVat;
+	}
+
+	public void addRecommended() {
+		this.recommended++;
+	}
+
 }

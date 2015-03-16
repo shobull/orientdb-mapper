@@ -1,9 +1,12 @@
 import cz.cvut.palislub.config.AppConfig;
-import cz.cvut.palislub.example.domain.Buying;
-import cz.cvut.palislub.example.domain.Product;
-import cz.cvut.palislub.example.domain.User;
-import cz.cvut.palislub.example.repo.ProductGraphRepo;
-import cz.cvut.palislub.example.repo.UserGraphRepo;
+import cz.cvut.palislub.example.domain.nodes.GraphProduct;
+import cz.cvut.palislub.example.domain.nodes.GraphUser;
+import cz.cvut.palislub.example.domain.relationships.PageViewRelationship;
+import cz.cvut.palislub.example.domain.relationships.ProductViewRelationship;
+import cz.cvut.palislub.example.repository.GraphProductRepo;
+import cz.cvut.palislub.example.repository.GraphUserRepo;
+import groovy.util.slurpersupport.GPathResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -18,88 +21,34 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		User user = new User();
-		user.setName("Lubos");
-		user.setUserId("1");
-
-		User user2 = new User();
-		user2.setUserId("2");
-		user2.setName("Lubos2");
-
-		Product product = new Product();
-		product.setProductId(1);
-		product.setName("Kartacek na zuby");
-
-		Product product2 = new Product();
-		product2.setProductId(2);
-		product2.setName("Pasta na zuby");
-
-		Buying buying = new Buying();
-		buying.setUser(user);
-		buying.setProduct(product);
-
-		Buying buying3 = new Buying();
-		buying3.setUser(user);
-		buying3.setProduct(product2);
-
-//		Buying buying2 = new Buying();
-//		buying2.setUser(user2);
-//		buying2.setProduct(product);
 
 		ApplicationContext ctx =
 				new AnnotationConfigApplicationContext(AppConfig.class);
-		UserGraphRepo userGraphRepo = ctx.getBean(UserGraphRepo.class);
-		ProductGraphRepo productGraphRepo = ctx.getBean(ProductGraphRepo.class);
-//		genericGraphRepo.save(user);
+		GraphProductRepo productRepo = ctx.getBean(GraphProductRepo.class);
+		GraphUserRepo userRepo = ctx.getBean(GraphUserRepo.class);
 
-		//		genericGraphRepo.clearDatabase();
 
-		List<User> users = new ArrayList();
-		users.add(user);
-		users.add(user2);
+//		GraphUser gu = new GraphUser("xxxx.1426536665.1426536665");
 //
+//		userRepo.save(gu);
 
-		List<Buying> buyings = new ArrayList();
-		buyings.add(buying);
-		buyings.add(buying3);
-
-		userGraphRepo.save(users);
-		productGraphRepo.save(product);
-		productGraphRepo.save(product2);
-		userGraphRepo.saveBuyings(buyings);
-//		userGraphRepo.save(buying3);
-
-		System.out.println(userGraphRepo.get("8"));
-
-
-		for (Object o : userGraphRepo.listVertexIds()) {
-			System.out.println(o + " " + o.getClass());
-		}
-
-//		genericGraphRepo.loadTest();
-
-//		System.out.println(genericGraphRepo.count(User.class));
-
-		// AT THE BEGINNING
-
-// EVERY TIME YOU NEED A GRAPH INSTANCE
-//		OrientGraph graph = factory.getTx();
-//		try {
-//			Vertex luca = graph.addVertex(null);
-//			luca.setProperty("name", "Luca");
+//		ProductViewRelationship pw1 = new ProductViewRelationship(gu, new GraphProduct(237));
+//		ProductViewRelationship pw2 = new ProductViewRelationship(gu, new GraphProduct(517));
+//		ProductViewRelationship pw3 = new ProductViewRelationship(gu, new GraphProduct(223));
+//		ProductViewRelationship pw4 = new ProductViewRelationship(gu, new GraphProduct(315));
 //
-//			Vertex marko = graph.addVertex(null);
-//			marko.setProperty("name", "Marko");
-//
-//			Edge lucaKnowsMarko = graph.addEdge(null, luca, marko, "knows");
-//			System.out.println("Created edge: " + lucaKnowsMarko.getId());
-//
+//		userRepo.saveRelationship(pw1);
+//		userRepo.saveRelationship(pw2);
+//		userRepo.saveRelationship(pw3);
+//		userRepo.saveRelationship(pw4);
 
-//			System.out.println(graph.countVertices("asd"));
-//
-//		} finally {
-//			graph.shutdown();
+		productRepo.getSimilarProducts(237);
+
+//		for (Object o : productRepo.getSimilarProducts(2)) {
+//			System.out.println(o);
 //		}
+
+//		System.out.println(productRepo.getSimilarProducts(2).size());
 
 	}
 

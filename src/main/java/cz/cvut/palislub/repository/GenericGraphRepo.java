@@ -1,5 +1,6 @@
 package cz.cvut.palislub.repository;
 
+import com.tinkerpop.blueprints.Vertex;
 import cz.cvut.palislub.persist.OrientDbPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,8 +38,10 @@ public abstract class GenericGraphRepo<T, ID> {
 	}
 
 	public List<ID> listVertexIds() {
-		return persister.listVertices(clazz);
+		return persister.listVertexIds(clazz);
 	}
+
+	public Iterable<Vertex> getVertices() {return persister.listVertices(clazz);}
 
 	public List<ID> getIdsOfVertexByProperty(String propertyName, Object value) {
 		return persister.getIdsOfVertexByProperty(clazz, propertyName, value);
@@ -47,6 +50,8 @@ public abstract class GenericGraphRepo<T, ID> {
 	public T get(ID id) {
 		return (T) persister.get(clazz, id);
 	}
+
+	public Vertex getVertex(ID id) {return persister.getVertex(clazz, id);}
 
 	public void delete(ID id) {
 		persister.delete(clazz, id);

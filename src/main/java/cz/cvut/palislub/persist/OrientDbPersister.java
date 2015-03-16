@@ -52,7 +52,7 @@ public class OrientDbPersister {
 		return annotationResolver.isRelationshopEntity(type);
 	}
 
-	public List listVertices(Class<?> type) {
+	public List listVertexIds(Class<?> type) {
 		if (!annotationResolver.isNodeEntity(type)) {
 			throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node.");
 		}
@@ -66,11 +66,19 @@ public class OrientDbPersister {
 		return ids;
 	}
 
+	public Iterable<Vertex> listVertices(Class<?> type) {
+		if (!annotationResolver.isNodeEntity(type)) {
+			throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node.");
+		}
+		return graphManager.listVertices(annotationResolver.getNodeName(type));
+	}
+
 	public void delete(Class clazz, Object id) {
 		String classname = annotationResolver.getNodeName(clazz);
 		String property = annotationResolver.getUniquePropertyName(clazz);
 		graphManager.delete(classname, property, id);
 	}
+
 
 	public List getIdsOfVertexByProperty(Class<?> type, String propertyName, Object value) {
 		if (!annotationResolver.hasProperty(type, propertyName)) {
@@ -98,9 +106,8 @@ public class OrientDbPersister {
 		return false;
 	}
 
-
 	public Object get(Class<?> clazz, Object id) {
-		Vertex vertex = graphManager.getById(annotationResolver.getNodeName(clazz), annotationResolver.getUniquePropertyName(clazz), id);
+		Vertex vertex = getVertex(clazz, id);
 		if (vertex == null) {
 			return null;
 		}
@@ -122,6 +129,10 @@ public class OrientDbPersister {
 		}
 
 		return newInstance;
+	}
+
+	public Vertex getVertex(Class<?> clazz, Object id) {
+		return graphManager.getById(annotationResolver.getNodeName(clazz), annotationResolver.getUniquePropertyName(clazz), id);
 	}
 
 	public long count(Class clazz) {

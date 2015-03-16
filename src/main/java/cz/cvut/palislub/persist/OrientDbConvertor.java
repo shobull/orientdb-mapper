@@ -27,6 +27,9 @@ public class OrientDbConvertor {
 				if (annotationResolver.isNodeProperty(f)) {
 					f.setAccessible(true);
 					if (f.get(entity) == null) {
+						if (annotationResolver.isUnique(f)) {
+							throw new IllegalArgumentException("Property " + f.getName() + " je anotovana @Unique a nesmi byt null.");
+						}
 						continue;
 					}
 					customNode.addProperty(f.getName(), f.get(entity));
