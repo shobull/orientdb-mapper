@@ -1,4 +1,5 @@
 import cz.cvut.palislub.config.AppConfig;
+import cz.cvut.palislub.example.domain.dao.MyDao;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 import cz.cvut.palislub.example.domain.nodes.GraphUser;
 import cz.cvut.palislub.example.domain.relationships.PageViewRelationship;
@@ -28,6 +29,11 @@ public class Main {
 		GraphUserRepo userRepo = ctx.getBean(GraphUserRepo.class);
 
 
+		MyDao dao = ctx.getBean(MyDao.class);
+
+		dao.getSimilarProducts(1604);
+
+
 //		GraphUser gu = new GraphUser("xxxx.1426536665.1426536665");
 //
 //		userRepo.save(gu);
@@ -41,8 +47,6 @@ public class Main {
 //		userRepo.saveRelationship(pw2);
 //		userRepo.saveRelationship(pw3);
 //		userRepo.saveRelationship(pw4);
-
-		productRepo.getSimilarProducts(237);
 
 //		for (Object o : productRepo.getSimilarProducts(2)) {
 //			System.out.println(o);

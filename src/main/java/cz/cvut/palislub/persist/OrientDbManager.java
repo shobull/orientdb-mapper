@@ -216,6 +216,11 @@ public class OrientDbManager {
 		return graph.getEdgeType(typename).getProperty(fieldname);
 	}
 
+	public void removeEdgeProperty(String relationshipName, String name) {
+		graph.getEdgeType(relationshipName).dropProperty(name);
+		System.out.println("Deleting property \"" + relationshipName + "\" from custom edge type \"" + name + "\".");
+	}
+
 	public Iterable<Vertex> listVertices(String typename) {
 		return graph.getVerticesOfClass(typename);
 	}

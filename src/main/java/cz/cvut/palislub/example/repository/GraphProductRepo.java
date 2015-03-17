@@ -1,6 +1,9 @@
 package cz.cvut.palislub.example.repository;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.groovy.Gremlin;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.transform.GatherPipe;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
@@ -13,6 +16,7 @@ import cz.cvut.palislub.repository.GenericGraphRepo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * User: L
@@ -40,51 +44,49 @@ public class GraphProductRepo extends GenericGraphRepo<GraphProduct, Long> {
 		newAdvisorCategoryRelationships.forEach(this::saveRelationship);
 	}
 
-	public List getSimilarProducts(long i) {
+	public List<Long> getSimilarProducts(long id) {
 
-		GremlinPipeline pipeline = new GremlinPipeline();
+		Set<Long> productIds = Sets.newLinkedHashSet();
 
-
-		Map<Vertex, Integer> map = new HashMap();
-
-		// gremlin> g.V.as('x').outE('knows').inV.has('age', T.gt, 30).back('x').age
-
-		pipeline.start(getVertex(i))
-				.out("belong_to_category").in("belong_to_category").as("products")
-				.out("has_advisor_category").in("has_advisor_category").has("productId", i)
+		List<GremlinPipeline> pipes = Lists.newArrayList();
+		GremlinPipeline firstPipeline = new GremlinPipeline();
+		firstPipeline.start(getVertex(id))
+				.out("belong_to_category").in("belong_to_category")
+				.as("products")
+				.out("has_advisor_category").in("has_advisor_category").has("productId", id)
 				.back("products")
-				.out("brand_of").in("brand_of").has("productId", i)
-				.back("products");
+				.out("is_product_type").in("is_product_type").has("productId", id)
+				.back("products").property("productId");
 
-//		pipeline.start(getVertex(i)).as("actualProduct").out("belong_to_category").in("belong_to_category")
-//				.back("actualProduct").out("has_advisor_category").in("has_advisor_category")
-//				.back("actualProduct");
-//				.groupCount(map);
+		GremlinPipeline secondPipeline = new GremlinPipeline();
+		secondPipeline.start(getVertex(id))
+				.out("belong_to_category").in("belong_to_category")
+				.as("products")
+				.out("has_advisor_category").in("has_advisor_category").has("productId", id)
+				.back("products").property("productId");
 
+		GremlinPipeline thirdPipeline = new GremlinPipeline();
+		thirdPipeline.start(getVertex(id))
+				.out("belong_to_category").in("belong_to_category")
+				.as("products")
+				.out("is_product_type").in("is_product_type").has("productId", id)
+				.back("products").property("productId");
 
-//		System.out.println("XXXXXXXXXXXXXXX " + pipeline.count());
-		for (Object o : pipeline) {
-			System.out.println(o);
+		pipes.add(firstPipeline);
+		pipes.add(secondPipeline);
+		pipes.add(thirdPipeline);
+
+		for (GremlinPipeline pipe : pipes) {
+			if (productIds.size() < 10) {
+				pipe.fill(productIds);
+				System.out.println("PLNIM");
+				for (Long pid : productIds) {
+					System.out.println(pid);
+				}
+			}
 		}
-		System.out.println("XXXXXXXXXXXXXXX " + pipeline.count());
-		for (Object o : map.keySet()) {
-			System.out.println(o + " " + map.get(o));
-		}
 
-
-//
-//		GremlinPipeline pipeline = new GremlinPipeline();
-//		pipeline.start(getVertex(i)).out("belong_to_category").in("belong_to_category").groupCount(map);
-//
-//		while(pipeline.hasNext()) {
-//			pipeline.next();
-//		}
-
-//		for (Object s : map.keySet()) {
-//			System.out.println(s + " " + map.get(s));
-//		}
-
-		return null;
+		return Lists.newArrayList(productIds);
 	}
 
 }

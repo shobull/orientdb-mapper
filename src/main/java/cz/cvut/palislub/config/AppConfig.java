@@ -2,6 +2,7 @@ package cz.cvut.palislub.config;
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
+import cz.cvut.palislub.example.domain.dao.MyDao;
 import cz.cvut.palislub.example.repository.GraphProductRepo;
 import cz.cvut.palislub.example.repository.GraphUserRepo;
 import cz.cvut.palislub.persist.OrientDbConvertor;
@@ -36,6 +37,11 @@ public class AppConfig {
 	@Bean
 	public GraphUserRepo graphUserRepo() {
 		return new GraphUserRepo();
+	}
+
+	@Bean
+	public MyDao myDao() {
+		return new MyDao();
 	}
 
 	@Bean

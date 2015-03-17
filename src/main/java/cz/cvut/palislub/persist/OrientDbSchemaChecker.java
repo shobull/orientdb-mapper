@@ -76,7 +76,7 @@ public class OrientDbSchemaChecker {
 			}
 
 			for (OProperty p : existingProperties) {
-				graphManager.removeVertexProperty(relationshipName, p.getName());
+				graphManager.removeEdgeProperty(relationshipName, p.getName());
 			}
 		}
 	}
