@@ -7,6 +7,8 @@ import cz.cvut.palislub.annotations.RelationshipProperty;
 import cz.cvut.palislub.example.domain.nodes.GraphUser;
 import cz.cvut.palislub.example.domain.nodes.GraphWebPage;
 
+import java.util.Date;
+
 /**
  * User: L
  * Date: 2. 3. 2015
@@ -22,6 +24,9 @@ public class PageViewRelationship {
 
 	@RelationshipProperty
 	private boolean enterVisit = false;
+
+	@RelationshipProperty
+	private Date visitedTime;
 
 	public PageViewRelationship(GraphUser user, GraphWebPage webpage) {
 		this.user = user;

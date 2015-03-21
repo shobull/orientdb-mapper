@@ -23,6 +23,12 @@ public class GraphProduct {
 	@NodeProperty
 	private long recommended;
 
+	@NodeProperty
+	private boolean inSale;
+
+	@NodeProperty
+	private int test;
+
 	public GraphProduct(long productId) {
 		this.productId = productId;
 	}

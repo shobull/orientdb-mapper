@@ -23,13 +23,8 @@ public class MyDao {
 	@Autowired
 	private GraphUserRepo graphUserRepo;
 
-	public void getSimilarProducts(long id) {
 
-		Long averagePrice = graphUserRepo.getAveragePriceOfViewedItemsFromSameCategory("xxxx.1426536665.1426536665", id);
-
-		graphProductRepo.getSimilarProducts(id);
-
+	public void getSimilarProducts(int i, String s) {
+		graphUserRepo.getAveragePriceOfViewedItemsFromSameCategory(s, i);
 	}
-
-
 }

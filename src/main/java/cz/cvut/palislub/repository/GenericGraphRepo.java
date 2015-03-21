@@ -1,6 +1,8 @@
 package cz.cvut.palislub.repository;
 
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import cz.cvut.palislub.persist.OrientDbPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,6 +33,10 @@ public abstract class GenericGraphRepo<T, ID> {
 			save(entity);
 		}
 		return entities;
+	}
+
+	public Graph getGraph() {
+		return persister.getGraph();
 	}
 
 	public void saveRelationship(Object entity) {
@@ -70,6 +76,5 @@ public abstract class GenericGraphRepo<T, ID> {
 	public void clearDatabase() {
 		persister.clearDatabase();
 	}
-
 
 }

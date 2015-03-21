@@ -15,5 +15,5 @@ public @interface Relationship {
 
 	String type();
 
-	boolean unique() default false;
+	boolean unique() default true;
 }

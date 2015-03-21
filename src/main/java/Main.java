@@ -31,7 +31,7 @@ public class Main {
 
 		MyDao dao = ctx.getBean(MyDao.class);
 
-		dao.getSimilarProducts(1604);
+		dao.getSimilarProducts(962, "4hV7WA4XcL.1426924417578");
 
 
 //		GraphUser gu = new GraphUser("xxxx.1426536665.1426536665");

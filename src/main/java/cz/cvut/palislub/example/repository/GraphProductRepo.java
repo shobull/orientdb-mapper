@@ -2,10 +2,17 @@ package cz.cvut.palislub.example.repository;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import com.tinkerpop.gremlin.groovy.Gremlin;
+import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngineFactory;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.transform.GatherPipe;
+import com.tinkerpop.pipes.transform.OrderPipe;
+import com.tinkerpop.pipes.transform.TransformPipe;
+import com.tinkerpop.pipes.util.structures.Pair;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 import cz.cvut.palislub.example.domain.relationships.AdvisorCategoryRelationship;
 import cz.cvut.palislub.example.domain.relationships.BrandRelationship;
@@ -13,10 +20,10 @@ import cz.cvut.palislub.example.domain.relationships.ManufacturedRelationship;
 import cz.cvut.palislub.example.domain.relationships.ProductInCategoryRelationship;
 import cz.cvut.palislub.repository.GenericGraphRepo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.script.Bindings;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.util.*;
 
 /**
  * User: L
@@ -44,49 +51,5 @@ public class GraphProductRepo extends GenericGraphRepo<GraphProduct, Long> {
 		newAdvisorCategoryRelationships.forEach(this::saveRelationship);
 	}
 
-	public List<Long> getSimilarProducts(long id) {
-
-		Set<Long> productIds = Sets.newLinkedHashSet();
-
-		List<GremlinPipeline> pipes = Lists.newArrayList();
-		GremlinPipeline firstPipeline = new GremlinPipeline();
-		firstPipeline.start(getVertex(id))
-				.out("belong_to_category").in("belong_to_category")
-				.as("products")
-				.out("has_advisor_category").in("has_advisor_category").has("productId", id)
-				.back("products")
-				.out("is_product_type").in("is_product_type").has("productId", id)
-				.back("products").property("productId");
-
-		GremlinPipeline secondPipeline = new GremlinPipeline();
-		secondPipeline.start(getVertex(id))
-				.out("belong_to_category").in("belong_to_category")
-				.as("products")
-				.out("has_advisor_category").in("has_advisor_category").has("productId", id)
-				.back("products").property("productId");
-
-		GremlinPipeline thirdPipeline = new GremlinPipeline();
-		thirdPipeline.start(getVertex(id))
-				.out("belong_to_category").in("belong_to_category")
-				.as("products")
-				.out("is_product_type").in("is_product_type").has("productId", id)
-				.back("products").property("productId");
-
-		pipes.add(firstPipeline);
-		pipes.add(secondPipeline);
-		pipes.add(thirdPipeline);
-
-		for (GremlinPipeline pipe : pipes) {
-			if (productIds.size() < 10) {
-				pipe.fill(productIds);
-				System.out.println("PLNIM");
-				for (Long pid : productIds) {
-					System.out.println(pid);
-				}
-			}
-		}
-
-		return Lists.newArrayList(productIds);
-	}
 
 }

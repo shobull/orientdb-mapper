@@ -31,19 +31,16 @@ public class OrientDbSchemaChecker {
 	@Autowired
 	AnnotationResolver annotationResolver;
 
+	@Autowired
+	private OrientDbSchemaManager orientDbSchemaManager;
+
 	String scannedPackage;
-
-	OrientDbManager graphManager;
-
-	Logger logger = LoggerFactory.getLogger(OrientDbSchemaChecker.class);
 
 	public void setScannedPackage(String scannedPackage) {
 		this.scannedPackage = scannedPackage;
 	}
 
-	public void checkDbSchema(OrientDbManager graphManager) {
-		this.graphManager = graphManager;
-
+	public void checkDbSchema() {
 		Reflections reflections = new Reflections(new ConfigurationBuilder()
 				.setUrls(ClasspathHelper.forPackage(scannedPackage))
 				.setScanners(new FieldAnnotationsScanner(),
@@ -52,9 +49,6 @@ public class OrientDbSchemaChecker {
 
 		checkVertexTypes(reflections);
 		checkEdgeTypes(reflections);
-		logger.info("OrientDB schema check completed. INFO");
-
-		logger.debug("OrientDB schema check completed.");
 	}
 
 	private void checkEdgeTypes(Reflections reflections) {
@@ -64,19 +58,19 @@ public class OrientDbSchemaChecker {
 			Class<?> clazz = classIterator.next();
 			String relationshipName = annotationResolver.getRelationshipType(clazz);
 
-			OrientEdgeType orientEdgeType = graphManager.createEdgeTypeIfNotExist(relationshipName);
-			Collection<OProperty> existingProperties = orientEdgeType.properties();
+			OrientEdgeType orientEdgeType = orientDbSchemaManager.createEdgeTypeIfNotExist(relationshipName);
+			Collection<String> existingProperties = orientEdgeType.propertiesMap().keySet();
 
 			Set<Field> fields = getAllFields(clazz, withAnnotation(annotationResolver.relationshipPropertyAnnotation()));
 			Iterator<Field> fieldIterator = fields.iterator();
 			while (fieldIterator.hasNext()) {
 				Field field = fieldIterator.next();
-				OProperty createdProperty = graphManager.createEdgePropertyIfNotExist(annotationResolver.getRelationshipType(clazz), field.getName());
-				existingProperties.remove(createdProperty);
+				OProperty createdProperty = orientDbSchemaManager.createEdgePropertyIfNotExist(annotationResolver.getRelationshipType(clazz), field);
+				existingProperties.remove(createdProperty.getName());
 			}
 
-			for (OProperty p : existingProperties) {
-				graphManager.removeEdgeProperty(relationshipName, p.getName());
+			for (String p : existingProperties) {
+				orientDbSchemaManager.removeEdgeProperty(relationshipName, p);
 			}
 		}
 	}
@@ -88,27 +82,27 @@ public class OrientDbSchemaChecker {
 			Class<?> clazz = classIterator.next();
 			String nodename = annotationResolver.getNodeName(clazz);
 
-			OrientVertexType orientVertexType = graphManager.createVertexTypeIfNotExist(nodename);
-			Collection<OProperty> existingProperties = orientVertexType.properties();
+			OrientVertexType orientVertexType = orientDbSchemaManager.createVertexTypeIfNotExist(nodename);
+			Collection<String> existingProperties = orientVertexType.propertiesMap().keySet();
 
 			Set<Field> fields = getAllFields(clazz, withAnnotation(annotationResolver.nodePropertyEntityAnnotation()));
 			Iterator<Field> fieldIterator = fields.iterator();
 			while (fieldIterator.hasNext()) {
 				Field field = fieldIterator.next();
 				if (annotationResolver.isUnique(field)) {
-					graphManager.createVertexPropertyKeyIndexIfNotExist(nodename, field.getName());
+					orientDbSchemaManager.createVertexPropertyKeyIndexIfNotExist(nodename, field.getName());
 				}
 
 				if (annotationResolver.isIndexed(field)) {
-					graphManager.createVertexPropertyIndexIfNotExist(nodename, field.getName());
+					orientDbSchemaManager.createVertexPropertyIndexIfNotExist(nodename, field.getName());
 				}
 
-				OProperty createdProperty = graphManager.createVertexPropertyIfNotExist(nodename, field.getName());
-				existingProperties.remove(createdProperty);
+				OProperty createdProperty = orientDbSchemaManager.createVertexPropertyIfNotExist(nodename, field);
+				existingProperties.remove(createdProperty.getName());
 			}
 
-			for (OProperty p : existingProperties) {
-				graphManager.removeVertexProperty(nodename, p.getName());
+			for (String p : existingProperties) {
+				orientDbSchemaManager.removeVertexProperty(nodename, p);
 			}
 		}
 	}

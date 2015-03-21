@@ -1,7 +1,9 @@
 package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Lists;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import cz.cvut.palislub.entity.CustomNode;
 import cz.cvut.palislub.entity.CustomRelationship;
 import cz.cvut.palislub.resolver.AnnotationResolver;
@@ -154,5 +156,9 @@ public class OrientDbPersister {
 		System.out.println("MAZU DATABAZI");
 		graphManager.clearDatabase();
 		System.out.println("V DB ZBYLO: " + countVertices() + " uzlu a " + countEdges() + " hran");
+	}
+
+	public Graph getGraph() {
+		return graphManager.getGraph();
 	}
 }

@@ -1,14 +1,14 @@
 package cz.cvut.palislub.config;
 
+import com.orientechnologies.orient.core.command.script.ODatabaseScriptManager;
+import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import cz.cvut.palislub.example.domain.dao.MyDao;
 import cz.cvut.palislub.example.repository.GraphProductRepo;
 import cz.cvut.palislub.example.repository.GraphUserRepo;
-import cz.cvut.palislub.persist.OrientDbConvertor;
-import cz.cvut.palislub.persist.OrientDbManager;
-import cz.cvut.palislub.persist.OrientDbPersister;
-import cz.cvut.palislub.persist.OrientDbSchemaChecker;
+import cz.cvut.palislub.persist.*;
 import cz.cvut.palislub.repository.GenericGraphRepo;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +50,19 @@ public class AppConfig {
 	}
 
 	@Bean
+	public OrientDbSchemaManager orientDbSchemaManager() {
+		return new OrientDbSchemaManager();
+	}
+
+	@Bean
+	public OrientDbGraphFactory orientDbGraphFactory() {
+		OrientDbGraphFactory orientDbGraphFactory = new OrientDbGraphFactory();
+		orientDbGraphFactory.setFactory(new OrientGraphFactory("remote:localhost/nazuby"));
+//		OrientGraphFactory factory = new OrientGraphFactory("plocal:D:/Prace/graphDB");
+		return orientDbGraphFactory;
+	}
+
+	@Bean
 	public OrientDbSchemaChecker orientDbSchemaChecker() {
 		OrientDbSchemaChecker orientDbSchemaChecker = new OrientDbSchemaChecker();
 		orientDbSchemaChecker.setScannedPackage("cz.cvut.palislub.example.domain");
@@ -59,10 +72,6 @@ public class AppConfig {
 	@Bean
 	public OrientDbManager graphManager() {
 		OrientDbManager graphManager = new OrientDbManager();
-//		OrientGraphFactory factory = new OrientGraphFactory("plocal:D:/Prace/graphDB");
-		OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/nazuby");
-		OrientGraphNoTx graph = factory.getNoTx();
-		graphManager.setGraph(graph);
 		return graphManager;
 	}
 
