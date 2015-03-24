@@ -22,7 +22,6 @@ public class Main {
 
 	public static void main(String[] args) {
 
-
 		ApplicationContext ctx =
 				new AnnotationConfigApplicationContext(AppConfig.class);
 		GraphProductRepo productRepo = ctx.getBean(GraphProductRepo.class);
@@ -31,8 +30,9 @@ public class Main {
 
 		MyDao dao = ctx.getBean(MyDao.class);
 
-		dao.getSimilarProducts(962, "4hV7WA4XcL.1426924417578");
-
+		dao.getSimilarProducts(824, "4hV7WA4XcL.1426924417578", "/holime");
+		dao.getSimilarProducts(2, "4hV7WA4XcL.1426924417578", "/holime2");
+		dao.getSimilarProducts(3, "4hV7WA4XcL.1426924417578", "/holime3");
 
 //		GraphUser gu = new GraphUser("xxxx.1426536665.1426536665");
 //

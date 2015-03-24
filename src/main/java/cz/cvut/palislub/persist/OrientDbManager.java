@@ -60,6 +60,7 @@ public class OrientDbManager {
 			System.out.println("UKLADAM DO DB UZEL: " + vertex);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			getGraph().rollback();
 			System.out.println("NEPODARILO SE ULOZIT UZEL DO DB");
 		}
@@ -78,8 +79,8 @@ public class OrientDbManager {
 
 
 	public List<Object> getIdsOfVertexByProperty(Class type, String propertyName, Object value) {
-		System.out.println("Hledam uzly na zaklade " + type.getSimpleName() + " a hodnoty " + value);
-		Iterable<Vertex> vertices = getGraph().getVertices(type.getSimpleName() + "." + propertyName, value);
+		System.out.println("Hledam uzly na zaklade " + annotationResolver.getNodeName(type) + "." + propertyName + " a hodnoty " + value);
+		Iterable<Vertex> vertices = getGraph().getVertices(annotationResolver.getNodeName(type) + "." + propertyName, value);
 
 		if (vertices == null) {
 			return null;
@@ -124,6 +125,7 @@ public class OrientDbManager {
 
 		} catch (Exception e) {
 			getGraph().rollback();
+			e.printStackTrace();
 			System.out.println("NEPODARILO SE ULOZIT HRANU DO DB");
 		}
 	}
@@ -163,6 +165,7 @@ public class OrientDbManager {
 			}
 			getGraph().commit();
 		} catch (Exception e) {
+			e.printStackTrace();
 			getGraph().rollback();
 		}
 	}
@@ -173,9 +176,14 @@ public class OrientDbManager {
 	}
 
 	public void delete(String typename, String fieldname, Object value) {
-		Iterable<Vertex> verticesToDelete = getGraph().getVertices(typename + "." + fieldname, value);
-		for (Vertex v : verticesToDelete) {
-			v.remove();
+		try {
+			Iterable<Vertex> verticesToDelete = getGraph().getVertices(typename + "." + fieldname, value);
+			for (Vertex v : verticesToDelete) {
+				v.remove();
+			}
+		} catch  (Exception e)  {
+			getGraph().rollback();
+			e.printStackTrace();
 		}
 	}
 

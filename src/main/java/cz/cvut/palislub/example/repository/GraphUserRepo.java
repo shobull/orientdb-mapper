@@ -19,6 +19,7 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +36,43 @@ public class GraphUserRepo extends GenericGraphRepo<GraphUser, String> {
 	public void saveCreatedOrderRelationships(List<CreatedOrderRelationship> createdOrderRelationships) {
 		createdOrderRelationships.forEach(this::saveRelationship);
 	}
+
+	public void test(String userid) {
+		List<String> vertices = getIdsOfVertexByProperty("username", "Shobull");
+
+		System.out.println("asdasd " + vertices);
+
+
+
+		GremlinPipeline userPipeline = new GremlinPipeline();
+//		userPipeline.start(getVertex(userid))
+//				.outE("viewed_page")
+//				.has("enter_visit", true)
+//				.inV()
+//				.inE("viewed_page")
+//				.has("enter_visit", true)
+//				.outV()
+//				.out("created_order")
+//				.out("contain_item")
+//				.property("productId")
+//				.groupCount()
+//				.cap();
+
+
+		List test = userPipeline.start(getVertex(userid))
+				.outE("viewed_page")
+				.has("enterVisit", true)
+				.inV()
+				.toList();
+
+		System.out.println(test);
+		System.out.println("XXX");
+
+//		HashMap<Long, Integer> results = (HashMap<Long, Integer>) userPipeline.next();
+//		System.out.println( results );
+
+	}
+
 
 	public long getAveragePriceOfViewedItemsFromSameCategory(String userId, long productId) {
 
@@ -55,9 +93,6 @@ public class GraphUserRepo extends GenericGraphRepo<GraphUser, String> {
 						return Math.round(sum / argument.size());
 					};
 				});
-
-
-		System.out.println("xxxxxxxx" + userPipeline.next());
 
 
 		// Return avg price of viewed products from the same category

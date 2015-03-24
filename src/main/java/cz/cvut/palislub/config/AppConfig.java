@@ -8,6 +8,7 @@ import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import cz.cvut.palislub.example.domain.dao.MyDao;
 import cz.cvut.palislub.example.repository.GraphProductRepo;
 import cz.cvut.palislub.example.repository.GraphUserRepo;
+import cz.cvut.palislub.example.repository.GraphWebPageRepo;
 import cz.cvut.palislub.persist.*;
 import cz.cvut.palislub.repository.GenericGraphRepo;
 import cz.cvut.palislub.resolver.AnnotationResolver;
@@ -37,6 +38,11 @@ public class AppConfig {
 	@Bean
 	public GraphUserRepo graphUserRepo() {
 		return new GraphUserRepo();
+	}
+
+	@Bean
+	public GraphWebPageRepo graphWebPageRepo() {
+		return new GraphWebPageRepo();
 	}
 
 	@Bean
