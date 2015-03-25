@@ -1,7 +1,7 @@
 package cz.cvut.palislub.example.repository;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
@@ -15,8 +15,6 @@ import cz.cvut.palislub.example.domain.relationships.ProductInCategoryRelationsh
 import cz.cvut.palislub.repository.GenericGraphRepo;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * User: L

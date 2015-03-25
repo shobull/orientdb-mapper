@@ -1,6 +1,5 @@
 package cz.cvut.palislub.repository;
 
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import cz.cvut.palislub.persist.OrientDbPersister;
@@ -35,19 +34,21 @@ public abstract class GenericGraphRepo<T, ID> {
 		return entities;
 	}
 
-	public Graph getGraph() {
-		return persister.getGraph();
+	public void saveRelationship(Object entity) {
+		persister.save(entity);
 	}
 
-	public void saveRelationship(Object entity) {
-		persister.saveRelationship(entity);
+	public OrientGraph getGraph() {
+		return persister.getGraph();
 	}
 
 	public List<ID> listVertexIds() {
 		return persister.listVertexIds(clazz);
 	}
 
-	public Iterable<Vertex> getVertices() {return persister.listVertices(clazz);}
+	public Iterable<Vertex> getVertices() {
+		return persister.listVertices(clazz);
+	}
 
 	public List<ID> getIdsOfVertexByProperty(String propertyName, Object value) {
 		return persister.getIdsOfVertexByProperty(clazz, propertyName, value);
@@ -57,13 +58,15 @@ public abstract class GenericGraphRepo<T, ID> {
 		return (T) persister.get(clazz, id);
 	}
 
-	public Vertex getVertex(ID id) {return persister.getVertex(clazz, id);}
+	public Vertex getVertex(ID id) {
+		return persister.getVertex(clazz, id);
+	}
 
 	public void delete(ID id) {
 		persister.delete(clazz, id);
 	}
 
-	public void delete(List<ID> ids) {
+	public void delete(Iterable<ID> ids) {
 		for (ID o : ids) {
 			delete(o);
 		}

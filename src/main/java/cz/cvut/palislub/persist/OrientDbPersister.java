@@ -1,7 +1,6 @@
 package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Lists;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import cz.cvut.palislub.entity.CustomNode;
@@ -27,27 +26,41 @@ public class OrientDbPersister {
 	@Autowired
 	private OrientDbConvertor convertor;
 
+	public OrientGraph getGraph() {
+		return graphManager.getGraph();
+	}
+
 	public Object save(Object entity) {
 		if (isNodeEntity(entity.getClass())) {
 			CustomNode customNode = convertor.transformToCustomNode(entity);
-			graphManager.createNode(customNode);
+			saveNode(customNode);
 			return null;
 		} else if (isRelationshopEntity(entity.getClass())) {
-			saveRelationship(entity);
+			CustomRelationship customRelationship = convertor.transformToCustomRelationship(entity);
+			saveRelationship(customRelationship);
 			return null;
 		}
 		throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node nebo @Relationship.");
 	}
 
-	public void saveRelationship(Object entity) {
-		if (annotationResolver.isRelationshopEntity(entity.getClass())) {
-			CustomRelationship customRelationship = convertor.transformToCustomRelationship(entity);
-			graphManager.createRelationship(customRelationship);
+	private void saveNode(CustomNode node) {
+		try {
+			graphManager.createNode(node);
+			getGraph().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			getGraph().rollback();
 		}
 	}
 
-	public boolean isNodeEntity(Class<?> type) {
-		return annotationResolver.isNodeEntity(type);
+	private void saveRelationship(CustomRelationship relationship) {
+		try {
+			graphManager.createRelationship(relationship);
+			getGraph().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			getGraph().rollback();
+		}
 	}
 
 	private boolean isRelationshopEntity(Class<?> type) {
@@ -76,11 +89,16 @@ public class OrientDbPersister {
 	}
 
 	public void delete(Class clazz, Object id) {
-		String classname = annotationResolver.getNodeName(clazz);
-		String property = annotationResolver.getUniquePropertyName(clazz);
-		graphManager.delete(classname, property, id);
+		try {
+			String classname = annotationResolver.getNodeName(clazz);
+			String property = annotationResolver.getUniquePropertyName(clazz);
+			graphManager.delete(classname, property, id);
+			getGraph().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			getGraph().rollback();
+		}
 	}
-
 
 	public List getIdsOfVertexByProperty(Class<?> type, String propertyName, Object value) {
 		if (!annotationResolver.hasProperty(type, propertyName)) {
@@ -109,7 +127,9 @@ public class OrientDbPersister {
 	}
 
 	public Object get(Class<?> clazz, Object id) {
-		Vertex vertex = getVertex(clazz, id);
+		Vertex vertex = null;
+		vertex = getVertex(clazz, id);
+
 		if (vertex == null) {
 			return null;
 		}
@@ -129,6 +149,7 @@ public class OrientDbPersister {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
+
 
 		return newInstance;
 	}
@@ -154,11 +175,17 @@ public class OrientDbPersister {
 
 	public void clearDatabase() {
 		System.out.println("MAZU DATABAZI");
-		graphManager.clearDatabase();
+		try {
+			graphManager.clearDatabase();
+			getGraph().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+			getGraph().rollback();
+		}
 		System.out.println("V DB ZBYLO: " + countVertices() + " uzlu a " + countEdges() + " hran");
 	}
 
-	public Graph getGraph() {
-		return graphManager.getGraph();
+	public boolean isNodeEntity(Class<?> type) {
+		return annotationResolver.isNodeEntity(type);
 	}
 }
