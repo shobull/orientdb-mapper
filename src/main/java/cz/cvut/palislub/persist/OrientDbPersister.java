@@ -1,8 +1,12 @@
 package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Lists;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientEdge;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import cz.cvut.palislub.entity.CustomNode;
 import cz.cvut.palislub.entity.CustomRelationship;
 import cz.cvut.palislub.resolver.AnnotationResolver;
@@ -127,35 +131,51 @@ public class OrientDbPersister {
 	}
 
 	public Object get(Class<?> clazz, Object id) {
-		Vertex vertex = null;
-		vertex = getVertex(clazz, id);
+		Vertex vertex = getVertex(clazz, id);
 
 		if (vertex == null) {
 			return null;
 		}
 
-		Object newInstance = null;
-		try {
-			newInstance = clazz.newInstance();
+		return getInstance(vertex, clazz);
+	}
 
-			for (Field f : clazz.getDeclaredFields()) {
-				if (annotationResolver.isNodeProperty(f)) {
-					set(newInstance, f.getName(), vertex.getProperty(f.getName()));
-				}
-			}
-
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+	public Object getByRid(Class<?> clazz, String rid) {
+		if (isNodeEntity(clazz)) {
+			OrientVertex vertex = getGraph().getVertex(rid);
+			return getInstance(vertex, clazz);
+		} else if (isRelationshopEntity(clazz)) {
+			OrientEdge edge = getGraph().getEdge(rid);
+			return getInstance(edge, clazz);
 		}
-
-
-		return newInstance;
+		throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node nebo @Relationship.");
 	}
 
 	public Vertex getVertex(Class<?> clazz, Object id) {
 		return graphManager.getById(annotationResolver.getNodeName(clazz), annotationResolver.getUniquePropertyName(clazz), id);
+	}
+
+	private Object getInstance(Element element, Class clazz) {
+		if (element == null) {
+			return null;
+		}
+
+		try {
+			Object newInstance = clazz.newInstance();
+
+			for (Field f : clazz.getDeclaredFields()) {
+				if (annotationResolver.isNodeProperty(f)) {
+					set(newInstance, f.getName(), element.getProperty(f.getName()));
+				} else if (annotationResolver.isRelationshopProperty(f)) {
+					set(newInstance, f.getName(), element.getProperty(f.getName()));
+				}
+			}
+
+			return newInstance;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public long count(Class clazz) {
@@ -187,5 +207,18 @@ public class OrientDbPersister {
 
 	public boolean isNodeEntity(Class<?> type) {
 		return annotationResolver.isNodeEntity(type);
+	}
+
+	public void setProperty(Element element, String propertyName, Object propertyValue) {
+		try {
+			graphManager.setProperty(element, propertyName, propertyValue);
+			getGraph().commit();
+		} catch (Exception e) {
+			getGraph().rollback();
+		}
+	}
+
+	public Object getProperty(Element element, String propertyName) {
+		return graphManager.getProperty(element, propertyName);
 	}
 }

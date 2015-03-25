@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import cz.cvut.palislub.entity.CustomNode;
@@ -162,4 +163,11 @@ public class OrientDbManager {
 		return v;
 	}
 
+	public void setProperty(Element element, String propertyName, Object propertyValue) {
+		element.setProperty(propertyName, propertyValue);
+	}
+
+	public Object getProperty(Element element, String propertyName) {
+		return element.getProperty(propertyName);
+	}
 }

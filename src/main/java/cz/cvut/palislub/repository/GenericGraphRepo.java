@@ -1,5 +1,6 @@
 package cz.cvut.palislub.repository;
 
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import cz.cvut.palislub.persist.OrientDbPersister;
@@ -56,6 +57,18 @@ public abstract class GenericGraphRepo<T, ID> {
 
 	public T get(ID id) {
 		return (T) persister.get(clazz, id);
+	}
+
+	public T getByRid(String rid) {
+		return (T) persister.getByRid(clazz, rid);
+	}
+
+	public void setProperty(Element element, String propertyName, Object propertyValue) {
+		persister.setProperty(element, propertyName, propertyValue);
+	}
+
+	public Object getProperty(Element element, String propertyName) {
+		return persister.getProperty(element, propertyName);
 	}
 
 	public Vertex getVertex(ID id) {

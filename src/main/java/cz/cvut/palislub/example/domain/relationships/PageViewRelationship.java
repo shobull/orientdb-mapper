@@ -28,6 +28,12 @@ public class PageViewRelationship {
 	@RelationshipProperty
 	private Date visitedTime;
 
+	@RelationshipProperty
+	private long visitLength;
+
+	public PageViewRelationship() {
+	}
+
 	public PageViewRelationship(GraphUser user, GraphWebPage webpage) {
 		this.user = user;
 		this.webpage = webpage;
@@ -43,5 +49,25 @@ public class PageViewRelationship {
 
 	public void setWebpage(GraphWebPage webpage) {
 		this.webpage = webpage;
+	}
+
+	public void setVisitedTime(Date visitedTime) {
+		this.visitedTime = visitedTime;
+	}
+
+	public void setVisitLength(long visitLength) {
+		this.visitLength = visitLength;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("PageViewRelationship{");
+		sb.append("user=").append(user);
+		sb.append(", webpage=").append(webpage);
+		sb.append(", enterVisit=").append(enterVisit);
+		sb.append(", visitedTime=").append(visitedTime);
+		sb.append(", visitLength=").append(visitLength);
+		sb.append('}');
+		return sb.toString();
 	}
 }
