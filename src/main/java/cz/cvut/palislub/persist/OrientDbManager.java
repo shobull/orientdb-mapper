@@ -11,7 +11,6 @@ import cz.cvut.palislub.entity.CustomRelationship;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PostConstruct;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,11 +30,6 @@ public class OrientDbManager {
 	@Autowired
 	OrientDbGraphFactory orientDbGraphFactory;
 
-	@PostConstruct
-	public void checkSchema() {
-		orientDbSchemaChecker.checkDbSchema();
-	}
-
 	public OrientGraph getGraph() {
 		return orientDbGraphFactory.getGraphTx();
 	}
@@ -47,14 +41,9 @@ public class OrientDbManager {
 			if (vertex == null) {
 				vertex = getGraph().addVertex("class:" + node.getLabel());
 			}
-
-			System.out.println("PRIPRAVUJI SE ULOZIT UZEL: " + vertex);
-
 			for (String key : node.getProperties().keySet()) {
 				vertex.setProperty(key, node.getProperty(key));
 			}
-
-			System.out.println("COMMIT DO DB UZEL: " + vertex);
 
 		} catch (Exception e) {
 			System.out.println("NEPODARILO SE ULOZIT UZEL DO DB " + vertex);
@@ -109,16 +98,13 @@ public class OrientDbManager {
 			}
 
 			if (edge == null) {
-				System.out.println("AAAAA jdu vytvorit hranu");
 				edge = getGraph().addEdge(null, vertextFrom, vertexTo, relationship.getLabel());
-				System.out.println("AAAAA Vytvarim novou hranu " + edge);
 			}
 
 			for (String key : relationship.getProperties().keySet()) {
 				edge.setProperty(key, relationship.getProperty(key));
 			}
 
-			System.out.println("COMMIT DO DB HRANU: " + edge);
 		} catch (Exception e) {
 			System.out.println("NEPODARILO SE ULOZIT HRANU DO DB");
 			e.printStackTrace();
