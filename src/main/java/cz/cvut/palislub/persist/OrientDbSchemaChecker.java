@@ -2,6 +2,7 @@ package cz.cvut.palislub.persist;
 
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.tinkerpop.blueprints.impls.orient.OrientEdgeType;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.reflections.Reflections;

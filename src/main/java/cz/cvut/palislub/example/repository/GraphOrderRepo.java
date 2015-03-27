@@ -19,4 +19,10 @@ public class GraphOrderRepo extends GenericGraphRepo<GraphOrder, Long> {
 	public void saveContainItemsRelationships(List<ContainItemsRelationship> containItemsRelationships) {
 		containItemsRelationships.forEach(this::saveRelationship);
 	}
+
+	public void saveIterative(List<GraphOrder> userList) {
+		userList.stream().forEach(order -> {
+			save(order);
+		});
+	};
 }

@@ -4,10 +4,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.tinkerpop.blueprints.Parameter;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientEdgeType;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
+import com.tinkerpop.blueprints.impls.orient.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
@@ -18,84 +15,88 @@ import java.lang.reflect.Field;
 public class OrientDbSchemaManager {
 
 	@Autowired
-	OrientDbGraphFactory orientDbGraphFactory;
-
-	public OrientGraphNoTx getGraph() {
-		return orientDbGraphFactory.getGraphNoTx();
-	}
-
+	private OrientGraphFactory orientGraphFactory;
 
 	private boolean indexExists(String fullIndexname) {
-		return getGraph().getIndexedKeys(Vertex.class, true).contains(fullIndexname);
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
+		return graph.getIndexedKeys(Vertex.class, true).contains(fullIndexname);
 	}
 
 	public OrientVertexType createVertexTypeIfNotExist(String typename) {
+
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		OrientVertexType vertexType;
 
-		if (getGraph().getVertexType(typename) == null) {
+		if (graph.getVertexType(typename) == null) {
 			System.out.println("Custom vertex type \"" + typename + "\" created.");
-			vertexType = getGraph().createVertexType(typename);
+			vertexType = graph.createVertexType(typename);
 		} else {
-			vertexType = getGraph().getVertexType(typename);
+			vertexType = graph.getVertexType(typename);
 		}
 
 		return vertexType;
 	}
 
 	public OProperty createVertexPropertyIfNotExist(String typename, Field field) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		OProperty property;
-		OrientVertexType customType = getGraph().getVertexType(typename);
+		OrientVertexType customType = graph.getVertexType(typename);
 		if (customType.getProperty(field.getName()) == null) {
 			System.out.println("Property \"" + field.getName() + "\" for custom vertex type \"" + typename + "\" created.");
 			OType type = OType.getTypeByClass(field.getType()) != null ? OType.getTypeByClass(field.getType()) : OType.ANY;
 			property = customType.createProperty(field.getName(), type);
 		} else {
-			property = getGraph().getVertexType(typename).getProperty(field.getName());
+			property = graph.getVertexType(typename).getProperty(field.getName());
 		}
 
 		return property;
 	}
 
 	public void createVertexPropertyKeyIndexIfNotExist(String typename, String fieldname) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		if (!indexExists(typename + "." + fieldname)) {
-			getGraph().createKeyIndex(fieldname, Vertex.class, new Parameter("type", "UNIQUE"), new Parameter("class", typename));
+			graph.createKeyIndex(fieldname, Vertex.class, new Parameter("type", "UNIQUE"), new Parameter("class", typename));
 			System.out.println("Created index above property \"" + fieldname + "\" in custom vertex type \"" + typename + "\".");
 		}
 
 	}
 
 	public void createVertexPropertyIndexIfNotExist(String typename, String fieldname) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		if (!indexExists(typename + "." + fieldname)) {
-			getGraph().createIndex(fieldname, Vertex.class, new Parameter("class", typename));
+			graph.createIndex(fieldname, Vertex.class, new Parameter("class", typename));
 		}
 	}
 
 	public void removeVertexProperty(String typename, String fieldname) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		System.out.println("Deleting property \"" + fieldname + "\" from custom vertex type \"" + typename + "\".");
-		getGraph().getVertexType(typename).dropProperty(fieldname);
+		graph.getVertexType(typename).dropProperty(fieldname);
 	}
 
 	public OrientEdgeType createEdgeTypeIfNotExist(String typename) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		OrientEdgeType edgeType;
-		if (getGraph().getEdgeType(typename) == null) {
+		if (graph.getEdgeType(typename) == null) {
 			System.out.println("Custom edge type \"" + typename + "\" created.");
-			edgeType = getGraph().createEdgeType(typename);
+			edgeType = graph.createEdgeType(typename);
 		} else {
-			edgeType = getGraph().getEdgeType(typename);
+			edgeType = graph.getEdgeType(typename);
 		}
 
 		return edgeType;
 	}
 
 	public OProperty createEdgePropertyIfNotExist(String typename, Field field) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		OProperty property;
-		OrientEdgeType customType = getGraph().getEdgeType(typename);
+		OrientEdgeType customType = graph.getEdgeType(typename);
 		if (customType.getProperty(field.getName()) == null) {
 			System.out.println("Property \"" + field.getName() + "\" for custom edge type \"" + typename + "\" created.");
 			OType type = OType.getTypeByClass(field.getType()) != null ? OType.getTypeByClass(field.getType()) : OType.ANY;
 			property = customType.createProperty(field.getName(), type);
 		} else {
-			property = getGraph().getEdgeType(typename).getProperty(field.getName());
+			property = graph.getEdgeType(typename).getProperty(field.getName());
 
 		}
 
@@ -103,8 +104,9 @@ public class OrientDbSchemaManager {
 	}
 
 	public void removeEdgeProperty(String relationshipName, String name) {
+		OrientGraphNoTx graph = orientGraphFactory.getNoTx();
 		System.out.println("Deleting property \"" + name + "\" from custom edge type \"" + relationshipName + "\".");
-		getGraph().getEdgeType(relationshipName).dropProperty(name);
+		graph.getEdgeType(relationshipName).dropProperty(name);
 	}
 
 

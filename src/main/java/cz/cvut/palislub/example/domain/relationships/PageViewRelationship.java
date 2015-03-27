@@ -13,7 +13,7 @@ import java.util.Date;
  * User: L
  * Date: 2. 3. 2015
  */
-@Relationship(type = "viewed_page")
+@Relationship(type = "viewed_page", unique = false)
 public class PageViewRelationship {
 
 	@NodeFrom

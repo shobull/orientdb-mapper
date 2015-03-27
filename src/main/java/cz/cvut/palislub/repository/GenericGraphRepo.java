@@ -3,6 +3,7 @@ package cz.cvut.palislub.repository;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import cz.cvut.palislub.example.domain.nodes.GraphOrder;
 import cz.cvut.palislub.persist.OrientDbPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,18 +30,17 @@ public abstract class GenericGraphRepo<T, ID> {
 	}
 
 	public Iterable<T> save(Iterable<T> entities) {
-		for (T entity : entities) {
-			save(entity);
-		}
+		persister.saveAll((Iterable<Object>) entities);
 		return entities;
 	}
 
-	public void saveRelationship(Object entity) {
-		persister.save(entity);
+	public Object saveRelationship(Object entity) {
+		return persister.save(entity);
 	}
 
-	public OrientGraph getGraph() {
-		return persister.getGraph();
+	public Iterable<Object> saveRelationships(Iterable<Object> entities) {
+		persister.saveAll(entities);
+		return entities;
 	}
 
 	public List<ID> listVertexIds() {
@@ -87,6 +87,10 @@ public abstract class GenericGraphRepo<T, ID> {
 
 	public long count() {
 		return persister.count(clazz);
+	}
+
+	public void removeAllNodes() {
+		persister.removeAllNodes(clazz);
 	}
 
 	public void clearDatabase() {

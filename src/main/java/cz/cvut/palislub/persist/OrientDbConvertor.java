@@ -1,11 +1,13 @@
 package cz.cvut.palislub.persist;
 
+import com.google.common.collect.Lists;
 import cz.cvut.palislub.entity.CustomNode;
 import cz.cvut.palislub.entity.CustomRelationship;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * User: L
@@ -52,6 +54,22 @@ public class OrientDbConvertor {
 		}
 
 		return customNode;
+	}
+
+	public Iterable<CustomNode> transformToCustomNodes(Iterable<Object> entities) {
+		List<CustomNode> list = Lists.newArrayList();
+		for (Object o : entities) {
+			list.add(transformToCustomNode(o));
+		}
+		return list;
+	}
+
+	public Iterable<CustomRelationship> transformToCustomRelationships(Iterable<Object> entities) {
+		List<CustomRelationship> list = Lists.newArrayList();
+		for (Object o : entities) {
+			list.add(transformToCustomRelationship(o));
+		}
+		return list;
 	}
 
 	private String retrieveIndexedProperty(Object object) {

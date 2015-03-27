@@ -1,9 +1,18 @@
+import com.google.common.collect.Lists;
 import cz.cvut.palislub.config.AppConfig;
-import cz.cvut.palislub.example.domain.dao.MyDao;
+import cz.cvut.palislub.example.domain.nodes.GraphOrder;
+import cz.cvut.palislub.example.domain.nodes.GraphUser;
+import cz.cvut.palislub.example.domain.nodes.GraphWebPage;
+import cz.cvut.palislub.example.domain.relationships.PageViewRelationship;
+import cz.cvut.palislub.example.repository.GraphOrderRepo;
 import cz.cvut.palislub.example.repository.GraphProductRepo;
 import cz.cvut.palislub.example.repository.GraphUserRepo;
+import cz.cvut.palislub.persist.OrientDbSchemaChecker;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * User: L
@@ -18,30 +27,57 @@ public class Main {
 		GraphProductRepo productRepo = ctx.getBean(GraphProductRepo.class);
 		GraphUserRepo userRepo = ctx.getBean(GraphUserRepo.class);
 
+		GraphOrderRepo graphOrderRepo = ctx.getBean(GraphOrderRepo.class);
+		OrientDbSchemaChecker orientDbSchemaChecker = ctx.getBean(OrientDbSchemaChecker.class);
 
-		MyDao dao = ctx.getBean(MyDao.class);
+		orientDbSchemaChecker.checkDbSchema();
+		List<GraphOrder> userList = Lists.newArrayList();
+		for (int i = 0; i < 10000; i++) {
+			GraphOrder go = new GraphOrder(i);
+			go.setCreated(new Date());
+			go.setTotalItemsPriceWithVat(500);
+			userList.add(go);
+		}
 
-		dao.test();
+		long start, end;
+		boolean batch = true;
+		if (batch) {
+			start = System.nanoTime();
+			graphOrderRepo.save(userList);
+			end = System.nanoTime();
+			System.out.println(end - start);
+			graphOrderRepo.removeAllNodes();
 
-//		GraphUser gu = new GraphUser("xxxx.1426536665.1426536665");
-//
-//		userRepo.save(gu);
+			start = System.nanoTime();
+			graphOrderRepo.save(userList);
+			end = System.nanoTime();
+			System.out.println(end - start);
+			graphOrderRepo.removeAllNodes();
 
-//		ProductViewRelationship pw1 = new ProductViewRelationship(gu, new GraphProduct(237));
-//		ProductViewRelationship pw2 = new ProductViewRelationship(gu, new GraphProduct(517));
-//		ProductViewRelationship pw3 = new ProductViewRelationship(gu, new GraphProduct(223));
-//		ProductViewRelationship pw4 = new ProductViewRelationship(gu, new GraphProduct(315));
-//
-//		userRepo.saveRelationship(pw1);
-//		userRepo.saveRelationship(pw2);
-//		userRepo.saveRelationship(pw3);
-//		userRepo.saveRelationship(pw4);
+			start = System.nanoTime();
+			graphOrderRepo.save(userList);
+			end = System.nanoTime();
+			System.out.println(end - start);
+			graphOrderRepo.removeAllNodes();
+		} else {
+			start = System.nanoTime();
+			graphOrderRepo.saveIterative(userList);
+			end = System.nanoTime();
+			System.out.println(end - start);
+			graphOrderRepo.removeAllNodes();
 
-//		for (Object o : productRepo.getSimilarProducts(2)) {
-//			System.out.println(o);
-//		}
+			start = System.nanoTime();
+			graphOrderRepo.saveIterative(userList);
+			end = System.nanoTime();
+			System.out.println(end - start);
+			graphOrderRepo.removeAllNodes();
 
-//		System.out.println(productRepo.getSimilarProducts(2).size());
+			start = System.nanoTime();
+			graphOrderRepo.saveIterative(userList);
+			end = System.nanoTime();
+			System.out.println(end - start);
+			graphOrderRepo.removeAllNodes();
+		}
 
 	}
 

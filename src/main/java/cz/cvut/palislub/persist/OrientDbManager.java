@@ -2,11 +2,15 @@ package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientEdge;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
+import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import cz.cvut.palislub.entity.CustomNode;
 import cz.cvut.palislub.entity.CustomRelationship;
 import cz.cvut.palislub.resolver.AnnotationResolver;
@@ -29,39 +33,160 @@ public class OrientDbManager {
 	OrientDbSchemaChecker orientDbSchemaChecker;
 
 	@Autowired
-	OrientDbGraphFactory orientDbGraphFactory;
+	OrientGraphFactory factory;
 
-	public OrientGraph getGraph() {
-		return orientDbGraphFactory.getGraphTx();
-	}
 
+	/**
+	 * Vytvori uzel v databazi
+	 */
 	public void createNode(CustomNode node) {
-		Vertex vertex = null;
+		OrientGraph graph = factory.getTx();
+		OrientVertex vertex = null;
 		try {
-			vertex = getNode(node.getLabel() + "." + node.getUniqueKey(), node.getProperty(node.getUniqueKey()));
+			vertex = getNode(graph, node.getLabel() + "." + node.getUniqueKey(), node.getProperty(node.getUniqueKey()));
 			if (vertex == null) {
-				vertex = getGraph().addVertex("class:" + node.getLabel());
+				graph.addVertex("class:" + node.getLabel(), node.getProperties());
+			} else {
+				vertex.setProperties(node.getProperties());
+				vertex.save();
 			}
-			for (String key : node.getProperties().keySet()) {
-				vertex.setProperty(key, node.getProperty(key));
-			}
-
+			graph.commit();
 		} catch (Exception e) {
-			System.out.println("NEPODARILO SE ULOZIT UZEL DO DB " + vertex);
-			throw e;
+			System.out.println("Nepodarilo se ulozit uzel " + vertex + " do databaze.");
+			graph.rollback();
+			e.printStackTrace();
+		} finally {
+			graph.shutdown();
 		}
-
 	}
 
-	private Vertex getNode(String key, Object value) {
-		Vertex v = getGraph().getVertexByKey(key, value);
-		return v;
+	/**
+	 * Vytvori hranu v databazi
+	 */
+	public void createRelationship(CustomRelationship relationship) {
+		OrientGraph graph = factory.getTx();
+		OrientEdge edge = null;
+		try {
+			OrientVertex vertextFrom = getNode(graph, relationship.getNodeLabelFrom(), relationship.getNodeValueFrom());
+			OrientVertex vertexTo = getNode(graph, relationship.getNodeLabelTo(), relationship.getNodeValueTo());
+
+			if (vertextFrom == null || vertexTo == null) {
+				throw new NullPointerException("Pri ukladani hrany nastala chyba: Vychozi uzel (" + vertextFrom + ") nebo cilovy uzel (" + vertexTo + ") je null.");
+			}
+
+			if (relationship.isUnique()) {
+				Iterable<Edge> outcomingEdges = vertextFrom.getEdges(Direction.OUT, relationship.getLabel());
+				Iterable<Edge> incomingEdges = vertexTo.getEdges(Direction.IN, relationship.getLabel());
+				for (Edge outEdge : outcomingEdges) {
+					if (Iterables.contains(incomingEdges, outEdge)) {
+						edge = (OrientEdge) outEdge;
+						break;
+					}
+				}
+			}
+
+			if (edge == null) {
+				edge = graph.addEdge(null, vertextFrom, vertexTo, relationship.getLabel());
+			}
+
+			for (String key : relationship.getProperties().keySet()) {
+				edge.setProperty(key, relationship.getProperty(key));
+			}
+
+			edge.save();
+			graph.commit();
+		} catch (Exception e) {
+			System.out.println("Nepodarilo se ulozit hranu " + edge + " do databaze.");
+			graph.rollback();
+			e.printStackTrace();
+		} finally {
+			graph.shutdown();
+		}
 	}
 
+
+	public void batchCreateNodes(Iterable<CustomNode> nodes) {
+		OrientGraph graph = factory.getTx();
+		try {
+			graph.declareIntent(new OIntentMassiveInsert());
+
+			int cnt = 0;
+			for (CustomNode node : nodes) {
+				OrientVertex vertex = getNode(graph, node.getLabel() + "." + node.getUniqueKey(), node.getProperty(node.getUniqueKey()));
+				if (vertex == null) {
+					graph.addVertex("class:" + node.getLabel(), node.getProperties());
+				} else {
+					vertex.setProperties(node.getProperties());
+					vertex.save();
+				}
+				cnt++;
+				if (cnt == 1000) {
+					// memory optimalization
+					graph.commit();
+					cnt = 0;
+				}
+			}
+			graph.declareIntent(null);
+			graph.commit();
+		} catch (Exception e) {
+			graph.rollback();
+			e.printStackTrace();
+		} finally {
+			graph.shutdown();
+		}
+	}
+
+	public void batchCreateRelationships(Iterable<CustomRelationship> relationships) {
+		OrientGraph graph = factory.getTx();
+		try {
+			graph.declareIntent(new OIntentMassiveInsert());
+			relationships.forEach(relationship -> {
+				Edge edge = null;
+				OrientVertex vertextFrom = getNode(graph, relationship.getNodeLabelFrom(), relationship.getNodeValueFrom());
+				OrientVertex vertexTo = getNode(graph, relationship.getNodeLabelTo(), relationship.getNodeValueTo());
+
+				if (vertextFrom == null || vertexTo == null) {
+					throw new NullPointerException("Pri ukladani hrany nastala chyba: Vychozi uzel (" + vertextFrom + ") nebo cilovy uzel (" + vertexTo + ") je null.");
+				}
+
+				if (relationship.isUnique()) {
+					Iterable<Edge> outcomingEdges = vertextFrom.getEdges(Direction.OUT, relationship.getLabel());
+					Iterable<Edge> incomingEdges = vertexTo.getEdges(Direction.IN, relationship.getLabel());
+					for (Edge outEdge : outcomingEdges) {
+						if (Iterables.contains(incomingEdges, outEdge)) {
+							edge = (OrientEdge) outEdge;
+							break;
+						}
+					}
+				}
+
+				if (edge == null) {
+					edge = graph.addEdge(null, vertextFrom, vertexTo, relationship.getLabel());
+				}
+
+				for (String key : relationship.getProperties().keySet()) {
+					edge.setProperty(key, relationship.getProperty(key));
+				}
+			});
+			graph.declareIntent(null);
+			graph.commit();
+		} catch (Exception e) {
+			graph.rollback();
+			e.printStackTrace();
+		} finally {
+			graph.shutdown();
+		}
+	}
+
+
+	private OrientVertex getNode(OrientGraph graph, String key, Object value) {
+		return (OrientVertex) graph.getVertexByKey(key, value);
+	}
 
 	public List<Object> getIdsOfVertexByProperty(Class type, String propertyName, Object value) {
-		System.out.println("Hledam uzly na zaklade " + annotationResolver.getNodeName(type) + "." + propertyName + " a hodnoty " + value);
-		Iterable<Vertex> vertices = getGraph().getVertices(annotationResolver.getNodeName(type) + "." + propertyName, value);
+		OrientGraph graph = factory.getTx();
+
+		Iterable<Vertex> vertices = graph.getVertices(annotationResolver.getNodeName(type) + "." + propertyName, value);
 
 		if (vertices == null) {
 			return null;
@@ -72,95 +197,106 @@ public class OrientDbManager {
 		return result;
 	}
 
-	public void createRelationship(CustomRelationship relationship) {
-		try {
-			System.out.println("AAAAA Jdu ukladat hranu " + relationship.getLabel());
-			Vertex vertextFrom = getNode(relationship.getNodeLabelFrom(), relationship.getNodeValueFrom());
-			System.out.println("AAAAA Hrana z " + vertextFrom);
-			Vertex vertexTo = getNode(relationship.getNodeLabelTo(), relationship.getNodeValueTo());
-			System.out.println("AAAAA Hrana do " + vertexTo);
-
-
-			if (vertextFrom == null || vertexTo == null) {
-				throw new NullPointerException("Pri ukladani hrany nastala chyba: Vychozi uzel (" + vertextFrom + ") nebo cilovy uzel (" + vertexTo + ") je null.");
-			}
-
-			Edge edge = null;
-
-			if (relationship.isUnique()) {
-				Iterable<Edge> outcomingEdges = vertextFrom.getEdges(Direction.OUT, relationship.getLabel());
-				Iterable<Edge> incomingEdges = vertexTo.getEdges(Direction.IN, relationship.getLabel());
-				for (Edge outEdge : outcomingEdges) {
-					if (Iterables.contains(incomingEdges, outEdge)) {
-						edge = outEdge;
-						break;
-					}
-				}
-			}
-
-			if (edge == null) {
-				edge = getGraph().addEdge(null, vertextFrom, vertexTo, relationship.getLabel());
-			}
-
-			for (String key : relationship.getProperties().keySet()) {
-				edge.setProperty(key, relationship.getProperty(key));
-			}
-
-		} catch (Exception e) {
-			System.out.println("NEPODARILO SE ULOZIT HRANU DO DB");
-			e.printStackTrace();
-		}
-	}
-
 	public long count(Class clazz) {
+		OrientGraph graph = factory.getTx();
+		long cnt;
 		if (annotationResolver.isNodeEntity(clazz)) {
-			return getGraph().countVertices(annotationResolver.getNodeName(clazz));
+			cnt = graph.countVertices(annotationResolver.getNodeName(clazz));
 		} else {
-			return getGraph().countEdges(annotationResolver.getRelationshipType(clazz));
+			cnt = graph.countEdges(annotationResolver.getRelationshipType(clazz));
 		}
+		graph.shutdown();
+		return cnt;
 	}
 
 	public long countEdges() {
-		return getGraph().countEdges();
+		OrientGraph graph = factory.getTx();
+		long cnt = graph.countEdges();
+		graph.shutdown();
+		return cnt;
 	}
 
+
 	public long countVertices() {
-		return getGraph().countVertices();
+		OrientGraph graph = factory.getTx();
+		long cnt = graph.countVertices();
+		graph.shutdown();
+		return cnt;
+	}
+
+	public void removeAllNodes(Class clazz) {
+		OrientGraph graph = factory.getTx();
+		try {
+			Iterator<Vertex> vertexIterator = graph.getVerticesOfClass(annotationResolver.getNodeName(clazz)).iterator();
+			while (vertexIterator.hasNext()) {
+				Vertex v = vertexIterator.next();
+				v.remove();
+			}
+			graph.commit();
+		} catch (Exception e) {
+			graph.rollback();
+		} finally {
+			graph.shutdown();
+		}
 	}
 
 	public void clearDatabase() {
-		Iterator<Vertex> vertexIterator = getGraph().getVertices().iterator();
-		while (vertexIterator.hasNext()) {
-			Vertex v = vertexIterator.next();
-			v.remove();
-		}
+		OrientGraph graph = factory.getTx();
+		try {
+			Iterator<Vertex> vertexIterator = graph.getVertices().iterator();
+			while (vertexIterator.hasNext()) {
+				Vertex v = vertexIterator.next();
+				v.remove();
+			}
 
-		Iterator<Edge> edgeIterator = getGraph().getEdges().iterator();
-		while (vertexIterator.hasNext()) {
-			Edge e = edgeIterator.next();
-			e.remove();
-		}
+			Iterator<Edge> edgeIterator = graph.getEdges().iterator();
+			while (vertexIterator.hasNext()) {
+				Edge e = edgeIterator.next();
+				e.remove();
+			}
 
-		for (String key : getGraph().getIndexedKeys(Vertex.class, true)) {
-			getGraph().dropIndex(key);
+			for (String key : graph.getIndexedKeys(Vertex.class, true)) {
+				factory.getNoTx().dropIndex(key);
+			}
+			graph.commit();
+		} catch (Exception e) {
+			graph.rollback();
+		} finally {
+			graph.shutdown();
 		}
 	}
 
-
 	public Iterable<Vertex> listVertices(String typename) {
-		return getGraph().getVerticesOfClass(typename);
+		OrientGraph graph = factory.getTx();
+		Iterable<Vertex> v = graph.getVerticesOfClass(typename);
+		graph.shutdown();
+		return v;
 	}
 
 	public void delete(String typename, String fieldname, Object value) {
-		Iterable<Vertex> verticesToDelete = getGraph().getVertices(typename + "." + fieldname, value);
-		for (Vertex v : verticesToDelete) {
-			v.remove();
+		OrientGraph graph = factory.getTx();
+		try {
+			Iterable<Vertex> verticesToDelete = graph.getVertices(typename + "." + fieldname, value);
+			for (Vertex v : verticesToDelete) {
+				v.remove();
+			}
+		} catch (Exception e) {
+			graph.rollback();
+		} finally {
+			graph.shutdown();
 		}
 	}
 
 	public Vertex getById(String typename, String fieldname, Object id) {
-		Vertex v = getGraph().getVertexByKey(typename + "." + fieldname, id);
-		return v;
+		OrientGraph graph = factory.getTx();
+		Vertex v = null;
+		try {
+			v = graph.getVertexByKey(typename + "." + fieldname, id);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			return v;
+		}
 	}
 
 	public void setProperty(Element element, String propertyName, Object propertyValue) {
@@ -169,5 +305,17 @@ public class OrientDbManager {
 
 	public Object getProperty(Element element, String propertyName) {
 		return element.getProperty(propertyName);
+	}
+
+	public OrientVertex getVertexByRid(String rid) {
+		OrientGraph graph = factory.getTx();
+		OrientVertex v = graph.getVertex(rid);
+		return v;
+	}
+
+	public OrientEdge getEdgeByRid(String rid) {
+		OrientGraph graph = factory.getTx();
+		OrientEdge v = graph.getEdge(rid);
+		return v;
 	}
 }

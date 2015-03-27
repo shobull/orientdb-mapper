@@ -5,7 +5,8 @@ import com.tinkerpop.blueprints.impls.orient.OrientBaseGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import cz.cvut.palislub.example.domain.dao.MyDao;
+import cz.cvut.palislub.example.domain.nodes.GraphOrder;
+import cz.cvut.palislub.example.repository.GraphOrderRepo;
 import cz.cvut.palislub.example.repository.GraphProductRepo;
 import cz.cvut.palislub.example.repository.GraphUserRepo;
 import cz.cvut.palislub.example.repository.GraphWebPageRepo;
@@ -46,8 +47,8 @@ public class AppConfig {
 	}
 
 	@Bean
-	public MyDao myDao() {
-		return new MyDao();
+	public GraphOrderRepo graphOrderRepo() {
+		return new GraphOrderRepo();
 	}
 
 	@Bean
@@ -61,11 +62,10 @@ public class AppConfig {
 	}
 
 	@Bean
-	public OrientDbGraphFactory orientDbGraphFactory() {
-		OrientDbGraphFactory orientDbGraphFactory = new OrientDbGraphFactory();
-		orientDbGraphFactory.setFactory(new OrientGraphFactory("remote:localhost/nazuby"));
-//		OrientGraphFactory factory = new OrientGraphFactory("plocal:D:/Prace/graphDB");
-		return orientDbGraphFactory;
+	OrientGraphFactory orientGraphFactory() {
+		OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/nazubytest");
+		factory.setupPool(1, 5);
+		return factory;
 	}
 
 	@Bean

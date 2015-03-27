@@ -1,11 +1,9 @@
 package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Lists;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientEdge;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientVertex;
 import cz.cvut.palislub.entity.CustomNode;
 import cz.cvut.palislub.entity.CustomRelationship;
@@ -13,6 +11,7 @@ import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -30,10 +29,6 @@ public class OrientDbPersister {
 	@Autowired
 	private OrientDbConvertor convertor;
 
-	public OrientGraph getGraph() {
-		return graphManager.getGraph();
-	}
-
 	public Object save(Object entity) {
 		if (isNodeEntity(entity.getClass())) {
 			CustomNode customNode = convertor.transformToCustomNode(entity);
@@ -47,28 +42,36 @@ public class OrientDbPersister {
 		throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node nebo @Relationship.");
 	}
 
-	private void saveNode(CustomNode node) {
-		try {
-			graphManager.createNode(node);
-			getGraph().commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			getGraph().rollback();
+	public void saveAll(Iterable<Object> entities) {
+		if (!entities.iterator().hasNext()) {
+			return;
+		}
+
+		Object o = entities.iterator().next();
+
+		if (isNodeEntity(o.getClass())) {
+			Iterable<CustomNode> nodes = convertor.transformToCustomNodes(entities);
+			graphManager.batchCreateNodes(nodes);
+		} else if (isRelationshopEntity(o.getClass())) {
+			Iterable<CustomRelationship> relationships = convertor.transformToCustomRelationships(entities);
+			graphManager.batchCreateRelationships(relationships);
 		}
 	}
 
+	private void saveNode(CustomNode node) {
+		graphManager.createNode(node);
+	}
+
 	private void saveRelationship(CustomRelationship relationship) {
-		try {
-			graphManager.createRelationship(relationship);
-			getGraph().commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			getGraph().rollback();
-		}
+		graphManager.createRelationship(relationship);
 	}
 
 	private boolean isRelationshopEntity(Class<?> type) {
 		return annotationResolver.isRelationshopEntity(type);
+	}
+
+	public boolean isNodeEntity(Class<?> type) {
+		return annotationResolver.isNodeEntity(type);
 	}
 
 	public List listVertexIds(Class<?> type) {
@@ -93,16 +96,11 @@ public class OrientDbPersister {
 	}
 
 	public void delete(Class clazz, Object id) {
-		try {
-			String classname = annotationResolver.getNodeName(clazz);
-			String property = annotationResolver.getUniquePropertyName(clazz);
-			graphManager.delete(classname, property, id);
-			getGraph().commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			getGraph().rollback();
-		}
+		String classname = annotationResolver.getNodeName(clazz);
+		String property = annotationResolver.getUniquePropertyName(clazz);
+		graphManager.delete(classname, property, id);
 	}
+
 
 	public List getIdsOfVertexByProperty(Class<?> type, String propertyName, Object value) {
 		if (!annotationResolver.hasProperty(type, propertyName)) {
@@ -111,7 +109,6 @@ public class OrientDbPersister {
 
 		return graphManager.getIdsOfVertexByProperty(type, propertyName, value);
 	}
-
 
 	private static boolean set(Object object, String fieldName, Object fieldValue) {
 		Class<?> clazz = object.getClass();
@@ -142,10 +139,10 @@ public class OrientDbPersister {
 
 	public Object getByRid(Class<?> clazz, String rid) {
 		if (isNodeEntity(clazz)) {
-			OrientVertex vertex = getGraph().getVertex(rid);
+			OrientVertex vertex = graphManager.getVertexByRid(rid);
 			return getInstance(vertex, clazz);
 		} else if (isRelationshopEntity(clazz)) {
-			OrientEdge edge = getGraph().getEdge(rid);
+			OrientEdge edge = graphManager.getEdgeByRid(rid);
 			return getInstance(edge, clazz);
 		}
 		throw new IllegalArgumentException("Trida musi obsahovat anotaci @Node nebo @Relationship.");
@@ -193,32 +190,25 @@ public class OrientDbPersister {
 		return graphManager.countVertices();
 	}
 
+	public void removeAllNodes(Class clazz) {
+		System.out.println("Mazu z DB uzly " + annotationResolver.getNodeName(clazz));
+		graphManager.removeAllNodes(clazz);
+		System.out.println("V DB ZBYLO: " + count(clazz) + " uzlu.");
+	}
+
 	public void clearDatabase() {
 		System.out.println("MAZU DATABAZI");
-		try {
-			graphManager.clearDatabase();
-			getGraph().commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-			getGraph().rollback();
-		}
+		graphManager.clearDatabase();
 		System.out.println("V DB ZBYLO: " + countVertices() + " uzlu a " + countEdges() + " hran");
 	}
 
-	public boolean isNodeEntity(Class<?> type) {
-		return annotationResolver.isNodeEntity(type);
-	}
-
 	public void setProperty(Element element, String propertyName, Object propertyValue) {
-		try {
-			graphManager.setProperty(element, propertyName, propertyValue);
-			getGraph().commit();
-		} catch (Exception e) {
-			getGraph().rollback();
-		}
+		graphManager.setProperty(element, propertyName, propertyValue);
 	}
 
 	public Object getProperty(Element element, String propertyName) {
 		return graphManager.getProperty(element, propertyName);
 	}
+
+
 }
