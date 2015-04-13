@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 17. 2. 2015
  */
 public class OrientDbManager {
@@ -36,16 +36,20 @@ public class OrientDbManager {
 	OrientGraphFactory factory;
 
 
+	public OrientGraph getTxGraph() {
+		return factory.getTx();
+	}
+
 	/**
 	 * Vytvori uzel v databazi
 	 */
-	public void createNode(CustomNode node) {
+	public OrientVertex createNode(CustomNode node) {
 		OrientGraph graph = factory.getTx();
 		OrientVertex vertex = null;
 		try {
 			vertex = getNode(graph, node.getLabel() + "." + node.getUniqueKey(), node.getProperty(node.getUniqueKey()));
 			if (vertex == null) {
-				graph.addVertex("class:" + node.getLabel(), node.getProperties());
+				vertex = graph.addVertex("class:" + node.getLabel(), node.getProperties());
 			} else {
 				vertex.setProperties(node.getProperties());
 				vertex.save();
@@ -57,13 +61,14 @@ public class OrientDbManager {
 			e.printStackTrace();
 		} finally {
 			graph.shutdown();
+			return vertex;
 		}
 	}
 
 	/**
 	 * Vytvori hranu v databazi
 	 */
-	public void createRelationship(CustomRelationship relationship) {
+	public OrientEdge createRelationship(CustomRelationship relationship) {
 		OrientGraph graph = factory.getTx();
 		OrientEdge edge = null;
 		try {
@@ -101,6 +106,7 @@ public class OrientDbManager {
 			e.printStackTrace();
 		} finally {
 			graph.shutdown();
+			return edge;
 		}
 	}
 
@@ -266,10 +272,15 @@ public class OrientDbManager {
 		}
 	}
 
+	public Iterable<Vertex> listVertices(String typename, String[] keys, Object[] values) {
+		OrientGraph graph = factory.getTx();
+		Iterable<Vertex> v = graph.getVertices(typename, keys, values);
+		return v;
+	}
+
 	public Iterable<Vertex> listVertices(String typename) {
 		OrientGraph graph = factory.getTx();
 		Iterable<Vertex> v = graph.getVerticesOfClass(typename);
-		graph.shutdown();
 		return v;
 	}
 

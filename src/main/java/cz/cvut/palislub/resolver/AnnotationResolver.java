@@ -6,7 +6,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 16. 2. 2015
  */
 public class AnnotationResolver {
@@ -84,7 +84,6 @@ public class AnnotationResolver {
 	public boolean isNodeTo(Field field) {
 		return field.isAnnotationPresent(NodeTo.class);
 	}
-
 
 	public boolean isRelationshopProperty(Field field) {
 		return field.isAnnotationPresent(RelationshipProperty.class);

@@ -7,7 +7,7 @@ import cz.cvut.palislub.annotations.Unique;
 import java.util.Date;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 10. 3. 2015
  */
 @Node(name = "Order")

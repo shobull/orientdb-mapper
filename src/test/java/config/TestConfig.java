@@ -1,23 +1,25 @@
-package cz.cvut.palislub.config;
+package config;
+
+/**
+ * User: L
+ * Date: 13. 4. 2015
+ */
 
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
-import cz.cvut.palislub.example.repository.GraphOrderRepo;
-import cz.cvut.palislub.example.repository.GraphProductRepo;
-import cz.cvut.palislub.example.repository.GraphUserRepo;
-import cz.cvut.palislub.example.repository.GraphWebPageRepo;
 import cz.cvut.palislub.persist.*;
 import cz.cvut.palislub.resolver.AnnotationResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import repo.GraphTestUserRepository;
 
 /**
  * User: Lubos Palisek
  * Date: 17. 2. 2015
  */
 @Configuration
-@ComponentScan("cz.cvut.palislub.example.repository")
-public class AppConfig {
+@ComponentScan("repo")
+public class TestConfig {
 
 	@Bean
 	public OrientDbPersister persister() {
@@ -26,23 +28,8 @@ public class AppConfig {
 	}
 
 	@Bean
-	public GraphProductRepo graphProductRepo() {
-		return new GraphProductRepo();
-	}
-
-	@Bean
-	public GraphUserRepo graphUserRepo() {
-		return new GraphUserRepo();
-	}
-
-	@Bean
-	public GraphWebPageRepo graphWebPageRepo() {
-		return new GraphWebPageRepo();
-	}
-
-	@Bean
-	public GraphOrderRepo graphOrderRepo() {
-		return new GraphOrderRepo();
+	public GraphTestUserRepository graphTestUserRepository() {
+		return new GraphTestUserRepository();
 	}
 
 	@Bean
@@ -57,15 +44,14 @@ public class AppConfig {
 
 	@Bean
 	OrientGraphFactory orientGraphFactory() {
-		OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/nazuby");
-		factory.setupPool(1, 5);
+		OrientGraphFactory factory = new OrientGraphFactory("memory:testing-db");
 		return factory;
 	}
 
 	@Bean
 	public OrientDbSchemaChecker orientDbSchemaChecker() {
 		OrientDbSchemaChecker orientDbSchemaChecker = new OrientDbSchemaChecker();
-		orientDbSchemaChecker.setScannedPackage("cz.cvut.palislub.example.domain");
+		orientDbSchemaChecker.setScannedPackage("domain");
 		return orientDbSchemaChecker;
 	}
 

@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 17. 2. 2015
  */
 public class OrientDbConvertor {
@@ -18,8 +18,16 @@ public class OrientDbConvertor {
 	@Autowired
 	AnnotationResolver annotationResolver;
 
+	public void setAnnotationResolver(AnnotationResolver annotationResolver) {
+		this.annotationResolver = annotationResolver;
+	}
+
 	public CustomNode transformToCustomNode(Object entity) {
 		CustomNode customNode = new CustomNode();
+
+		if (!annotationResolver.isNodeEntity(entity.getClass())) {
+			throw new IllegalArgumentException("Parametr musi byt uzel.");
+		}
 
 		String label = annotationResolver.getNodeName(entity.getClass());
 		customNode.setLabel(label);
@@ -64,32 +72,12 @@ public class OrientDbConvertor {
 		return list;
 	}
 
-	public Iterable<CustomRelationship> transformToCustomRelationships(Iterable<Object> entities) {
-		List<CustomRelationship> list = Lists.newArrayList();
-		for (Object o : entities) {
-			list.add(transformToCustomRelationship(o));
-		}
-		return list;
-	}
-
-	private String retrieveIndexedProperty(Object object) {
-		for (Field f : object.getClass().getDeclaredFields()) {
-			f.setAccessible(true);
-			if (annotationResolver.isUnique(f)) {
-				return f.getName();
-			}
-		}
-		return null;
-	}
-
-	private Object retrieveFieldValue(Object entity, String fieldname) throws NoSuchFieldException, IllegalAccessException {
-		Field field = entity.getClass().getDeclaredField(fieldname);
-		field.setAccessible(true);
-		return field.get(entity);
-	}
-
 	public CustomRelationship transformToCustomRelationship(Object entity) {
 		CustomRelationship customRelationship = new CustomRelationship();
+
+		if (!annotationResolver.isRelationshopEntity(entity.getClass())) {
+			throw new IllegalArgumentException("Parametr musi byt hrana.");
+		}
 
 		String label = annotationResolver.getRelationshipType(entity.getClass());
 		customRelationship.setLabel(label);
@@ -117,6 +105,7 @@ public class OrientDbConvertor {
 					customRelationship.setNodeLabelTo(nodeLabelFrom);
 					customRelationship.setNodeValueTo(nodeValueFrom);
 				} else if (annotationResolver.isRelationshopProperty(f)) {
+
 					if (f.get(entity) == null) {
 						continue;
 					}
@@ -130,5 +119,29 @@ public class OrientDbConvertor {
 		}
 
 		return customRelationship;
+	}
+
+	public Iterable<CustomRelationship> transformToCustomRelationships(Iterable<Object> entities) {
+		List<CustomRelationship> list = Lists.newArrayList();
+		for (Object o : entities) {
+			list.add(transformToCustomRelationship(o));
+		}
+		return list;
+	}
+
+	private String retrieveIndexedProperty(Object object) {
+		for (Field f : object.getClass().getDeclaredFields()) {
+			f.setAccessible(true);
+			if (annotationResolver.isUnique(f)) {
+				return f.getName();
+			}
+		}
+		return null;
+	}
+
+	private Object retrieveFieldValue(Object entity, String fieldname) throws NoSuchFieldException, IllegalAccessException {
+		Field field = entity.getClass().getDeclaredField(fieldname);
+		field.setAccessible(true);
+		return field.get(entity);
 	}
 }

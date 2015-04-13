@@ -5,7 +5,7 @@ import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 9. 3. 2015
  */
 @Node(name = "Brand")

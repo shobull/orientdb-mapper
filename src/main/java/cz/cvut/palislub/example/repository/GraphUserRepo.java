@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 10. 3. 2015
  */
 public class GraphUserRepo extends GenericGraphRepo<GraphUser, String> {

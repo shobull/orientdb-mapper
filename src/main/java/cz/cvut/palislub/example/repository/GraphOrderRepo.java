@@ -7,7 +7,7 @@ import cz.cvut.palislub.repository.GenericGraphRepo;
 import java.util.List;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 10. 3. 2015
  */
 public class GraphOrderRepo extends GenericGraphRepo<GraphOrder, Long> {

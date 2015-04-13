@@ -7,7 +7,7 @@ import cz.cvut.palislub.repository.GenericGraphRepo;
 import java.util.List;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 9. 3. 2015
  */
 public class GraphCategoryRepo extends GenericGraphRepo<GraphCategory, Long> {

@@ -7,7 +7,7 @@ import cz.cvut.palislub.example.domain.nodes.GraphManufacturer;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 9. 3. 2015
  */
 @Relationship(type = "is_manufactured", unique = true)

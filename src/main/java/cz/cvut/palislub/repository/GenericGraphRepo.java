@@ -3,14 +3,13 @@ package cz.cvut.palislub.repository;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
-import cz.cvut.palislub.example.domain.nodes.GraphOrder;
 import cz.cvut.palislub.persist.OrientDbPersister;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 16. 2. 2015
  */
 public abstract class GenericGraphRepo<T, ID> {
@@ -22,6 +21,14 @@ public abstract class GenericGraphRepo<T, ID> {
 
 	public GenericGraphRepo(Class<T> clazz) {
 		this.clazz = clazz;
+	}
+
+	public void setPersister(OrientDbPersister persister) {
+		this.persister = persister;
+	}
+
+	public OrientGraph getTxGraph() {
+		return persister.getTxGraph();
 	}
 
 	public T save(T entity) {
@@ -47,8 +54,16 @@ public abstract class GenericGraphRepo<T, ID> {
 		return persister.listVertexIds(clazz);
 	}
 
+	public Vertex getVertex(ID id) {
+		return persister.getVertex(clazz, id);
+	}
+
 	public Iterable<Vertex> getVertices() {
 		return persister.listVertices(clazz);
+	}
+
+	public Iterable<Vertex> getVertices(String[] keys, Object[] values) {
+		return persister.listVertices(clazz, keys, values);
 	}
 
 	public List<ID> getIdsOfVertexByProperty(String propertyName, Object value) {
@@ -69,10 +84,6 @@ public abstract class GenericGraphRepo<T, ID> {
 
 	public Object getProperty(Element element, String propertyName) {
 		return persister.getProperty(element, propertyName);
-	}
-
-	public Vertex getVertex(ID id) {
-		return persister.getVertex(clazz, id);
 	}
 
 	public void delete(ID id) {

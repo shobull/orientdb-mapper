@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 17. 2. 2015
  */
 public class CustomNode {

@@ -7,7 +7,7 @@ import cz.cvut.palislub.example.domain.nodes.GraphOrder;
 import cz.cvut.palislub.example.domain.nodes.GraphUser;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 2. 3. 2015
  */
 @Relationship(type = "created_order")

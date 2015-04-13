@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * User: L
+ * User: Lubos Palisek
  * Date: 18. 2. 2015
  */
 public class CustomRelationship {
