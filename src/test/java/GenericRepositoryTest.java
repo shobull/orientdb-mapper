@@ -1,5 +1,5 @@
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import config.TestConfig;
@@ -18,6 +18,7 @@ import repo.GraphTestUserRepository;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * User: Lubos Palisek
@@ -35,16 +36,31 @@ public class GenericRepositoryTest {
 	GraphTestUserRepository userRepository;
 
 	@Before
-	public void beforeClass() {
+	public void setUp() {
 		orientDbSchemaManager.checkDbSchema();
+		clearDatabaste();
+	}
+
+	private void clearDatabaste() {
+		OrientGraph graph = userRepository.getTxGraph();
+
+		for (Vertex vertex : graph.getVertices()) {
+			vertex.remove();
+		}
+
+		for (Edge edge : graph.getEdges()) {
+			edge.remove();
+		}
+
+		graph.commit();
 	}
 
 	/**
 	 * Loading entity from database by unique property test.
 	 */
 	@Test
-	public void loadingByIdTest() {
-		String userId = "1";
+	public void loadingNodeByIdTest() {
+		String userId = UUID.randomUUID().toString();
 		String username = "lubos";
 
 		OrientGraph graph = userRepository.getTxGraph();
@@ -64,11 +80,11 @@ public class GenericRepositoryTest {
 	}
 
 	/**
-	 * Inserting node to database test
+	 * Inserting single node to database test
 	 */
 	@Test
-	public void insertTest() {
-		String userId = "1";
+	public void insertNodeTest() {
+		String userId = UUID.randomUUID().toString();
 		String username = "lubos";
 
 		GraphTestUser user = new GraphTestUser();
@@ -80,17 +96,19 @@ public class GenericRepositoryTest {
 		Assert.assertEquals("username is not equal", loadedUser.getUsername(), username);
 	}
 
-
+	/**
+	 * Inserting collection of nodes to database test
+	 */
 	@Test
-	public void batchInsertTest() {
-		String userId = "1";
+	public void batchInsertNodeTest() {
+		String userId = UUID.randomUUID().toString();
 		String username = "lubos";
 
 		GraphTestUser user = new GraphTestUser();
 		user.setUserId(userId);
 		user.setUsername(username);
 
-		String userId2 = "2";
+		String userId2 = UUID.randomUUID().toString();
 		String username2 = "petr";
 
 		GraphTestUser user2 = new GraphTestUser();
@@ -102,11 +120,8 @@ public class GenericRepositoryTest {
 		userRepository.save(users);
 
 		OrientGraph graph = userRepository.getTxGraph();
-		Iterable<Vertex> usersIt = graph.getVerticesOfClass("User");
 
-		List<Vertex> usersList = Lists.newArrayList(usersIt);
-
-		Assert.assertEquals("Wrong number of nodes in DB", usersList.size(), users.size());
+		Assert.assertEquals("Wrong number of nodes in DB", graph.countVertices("User"), users.size());
 
 		GraphTestUser firstUser = userRepository.get(userId);
 		GraphTestUser secondUser = userRepository.get(userId2);
@@ -118,24 +133,58 @@ public class GenericRepositoryTest {
 		Assert.assertEquals("username is not equal", secondUser.getUsername(), username2);
 	}
 
+	/**
+	 * Deleting single node from database test
+	 */
+	@Test
+	public void deleteNodeTest() {
+		String userId = UUID.randomUUID().toString();
+		String username = "lubos";
 
-	//	@Test
-//	public void test1() {
-//		graph.addVertex("asd2");
-//		System.out.println("Uvnitr1..." + graph.getVertices().iterator().next());
-//		graph.commit();
-//		System.out.println("Uvnitr1..." + graph.getVertices().iterator().next());
-//	}
-//	@Test(expected = Exception.class)
-//	@Test
-//	 public void test2() {
-//		System.out.println("Uvnitr2..");
-//	}
+		OrientGraph graph = userRepository.getTxGraph();
 
-//	@After
-//	public void afterClass() {
-//		graph.shutdown();
-//		System.out.println("Po...");
-//	}
+		Map<String, String> params = Maps.newHashMap();
+		params.put("userId", userId);
+		params.put("username", username);
+
+		graph.addVertex("class:User", params);
+		graph.commit();
+
+		Assert.assertEquals("Insertion to DB wasn't succesful", graph.countVertices("User"), 1);
+
+		userRepository.delete(userId);
+
+		Assert.assertEquals("Node delete wasn't successful", graph.countVertices("User"), 0);
+	}
+
+	/**
+	 * Loading of ids test
+	 */
+	@Test
+	public void listIdsTest() {
+		String userId = UUID.randomUUID().toString();
+		String username = "lubos";
+		String userId2 = UUID.randomUUID().toString();
+		String username2 = "petr";
+
+		OrientGraph graph = userRepository.getTxGraph();
+
+		Map<String, String> params = Maps.newHashMap();
+		params.put("userId", userId);
+		params.put("username", username);
+
+		Map<String, String> params2 = Maps.newHashMap();
+		params2.put("userId", userId2);
+		params2.put("username", username2);
+
+		graph.addVertex("class:User", params);
+		graph.addVertex("class:User", params2);
+		graph.commit();
+
+		List<String> userIds = userRepository.listVertexIds();
+
+		Assert.assertEquals("Wrong ids loaded", userIds, Arrays.asList(userId, userId2));
+	}
+
 
 }
