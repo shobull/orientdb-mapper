@@ -25,11 +25,14 @@ public class GraphWebPage {
 		this.path = path;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("GraphWebPage{");
-		sb.append("path='").append(path).append('\'');
-		sb.append('}');
-		return sb.toString();
+		return "GraphWebPage{" +
+				"path='" + path + '\'' +
+				'}';
 	}
 }

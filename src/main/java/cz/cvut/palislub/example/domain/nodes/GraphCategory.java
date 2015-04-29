@@ -17,6 +17,18 @@ public class GraphCategory {
 	@NodeProperty
 	private String name;
 
+	public GraphCategory() {
+	}
+
+	public GraphCategory(Long id) {
+		this.categoryId = id;
+	}
+
+	public GraphCategory(Long id, String name) {
+		this.categoryId = id;
+		this.name = name;
+	}
+
 	public long getCategoryId() {
 		return categoryId;
 	}
@@ -27,5 +39,14 @@ public class GraphCategory {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("GraphCategory{");
+		sb.append("categoryId=").append(categoryId);
+		sb.append(", name='").append(name).append('\'');
+		sb.append('}');
+		return sb.toString();
 	}
 }

@@ -5,7 +5,7 @@ import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 9. 3. 2015
  */
 @Node(name = "Brand")
@@ -17,6 +17,9 @@ public class GraphBrand {
 
 	@NodeProperty
 	private String name;
+
+	public GraphBrand() {
+	}
 
 	public long getBrandId() {
 		return brandId;

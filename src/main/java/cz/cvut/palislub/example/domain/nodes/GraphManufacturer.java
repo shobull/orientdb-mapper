@@ -5,7 +5,7 @@ import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 9. 3. 2015
  */
 @Node(name = "Manufacturer")
@@ -18,6 +18,8 @@ public class GraphManufacturer {
 	@NodeProperty
 	private String name;
 
+	public GraphManufacturer() {
+	}
 
 	public long getManufacturerId() {
 		return manufacturerId;

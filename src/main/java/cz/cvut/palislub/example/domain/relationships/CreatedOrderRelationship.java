@@ -7,7 +7,7 @@ import cz.cvut.palislub.example.domain.nodes.GraphOrder;
 import cz.cvut.palislub.example.domain.nodes.GraphUser;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 2. 3. 2015
  */
 @Relationship(type = "created_order")
@@ -18,6 +18,9 @@ public class CreatedOrderRelationship {
 
 	@NodeTo
 	private GraphOrder order;
+
+	public CreatedOrderRelationship() {
+	}
 
 	public CreatedOrderRelationship(GraphUser user, GraphOrder order) {
 		this.user = user;

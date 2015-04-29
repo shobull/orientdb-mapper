@@ -7,10 +7,10 @@ import cz.cvut.palislub.example.domain.nodes.GraphManufacturer;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 9. 3. 2015
  */
-@Relationship(type = "is_manufactured", unique = true)
+@Relationship(type = "is_manufactured")
 public class ManufacturedRelationship {
 
 	@NodeFrom
@@ -18,6 +18,9 @@ public class ManufacturedRelationship {
 
 	@NodeTo
 	private GraphManufacturer manufacturer;
+
+	public ManufacturedRelationship() {
+	}
 
 	public ManufacturedRelationship(GraphProduct product, GraphManufacturer manufacturer) {
 		this.product = product;

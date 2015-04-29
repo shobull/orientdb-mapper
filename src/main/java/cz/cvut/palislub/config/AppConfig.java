@@ -57,8 +57,9 @@ public class AppConfig {
 
 	@Bean
 	OrientGraphFactory orientGraphFactory() {
-		OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/nazuby");
-		factory.setupPool(1, 5);
+		OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/testdb");
+//		OrientGraphFactory factory = new OrientGraphFactory("plocal:C:/Temp/db/nazubyTest");
+//		factory.setupPool(1, 5);
 		return factory;
 	}
 

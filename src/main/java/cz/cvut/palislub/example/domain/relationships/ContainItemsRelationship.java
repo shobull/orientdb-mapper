@@ -7,7 +7,7 @@ import cz.cvut.palislub.example.domain.nodes.GraphOrder;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 10. 3. 2015
  */
 @Relationship(type = "contain_item")
@@ -18,6 +18,9 @@ public class ContainItemsRelationship {
 
 	@NodeTo
 	private GraphProduct product;
+
+	public ContainItemsRelationship() {
+	}
 
 	public ContainItemsRelationship(GraphOrder order, GraphProduct product) {
 		this.order = order;

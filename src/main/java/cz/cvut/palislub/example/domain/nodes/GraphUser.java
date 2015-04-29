@@ -17,7 +17,16 @@ public class GraphUser {
 	@NodeProperty
 	public String username = "";
 
+	@NodeProperty
+	public String email = "";
+
 	public GraphUser() {
+	}
+
+	public GraphUser(String userId, String username, String email) {
+		this.userId = userId;
+		this.username = username != null ? username : null;
+		this.email = email;
 	}
 
 	public GraphUser(String userId) {
@@ -40,12 +49,15 @@ public class GraphUser {
 		this.username = username;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("GraphUser{");
-		sb.append("userId='").append(userId).append('\'');
-		sb.append(", username='").append(username).append('\'');
-		sb.append('}');
-		return sb.toString();
+		return "GraphUser{" +
+				"userId='" + userId + '\'' +
+				", username='" + username + '\'' +
+				'}';
 	}
 }

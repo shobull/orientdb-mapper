@@ -8,7 +8,7 @@ import cz.cvut.palislub.example.domain.nodes.GraphCategory;
 /**
  * Created by lubos on 1.3.2015.
  */
-@Relationship(type = "is_subcategory", unique = true)
+@Relationship(type = "is_subcategory")
 public class SubcategoryRelationship {
 
 	@NodeFrom
@@ -16,6 +16,9 @@ public class SubcategoryRelationship {
 
 	@NodeTo
 	private GraphCategory parentCategory;
+
+	public SubcategoryRelationship() {
+	}
 
 	public SubcategoryRelationship(GraphCategory from, GraphCategory to) {
 		this.childCategory = from;

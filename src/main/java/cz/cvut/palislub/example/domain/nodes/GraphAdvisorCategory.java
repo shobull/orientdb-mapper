@@ -5,7 +5,7 @@ import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 9. 3. 2015
  */
 @Node(name = "AdvisorCategory")
@@ -17,6 +17,10 @@ public class GraphAdvisorCategory {
 
 	@NodeProperty
 	private String name;
+
+	public GraphAdvisorCategory() {
+	}
+
 
 	public long getAdvisorCategoryId() {
 		return advisorCategoryId;

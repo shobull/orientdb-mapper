@@ -7,10 +7,10 @@ import cz.cvut.palislub.example.domain.nodes.GraphAdvisorCategory;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 9. 3. 2015
  */
-@Relationship(type = "has_advisor_category", unique = true)
+@Relationship(type = "has_advisor_category")
 public class AdvisorCategoryRelationship {
 
 	@NodeFrom
@@ -18,6 +18,9 @@ public class AdvisorCategoryRelationship {
 
 	@NodeTo
 	private GraphAdvisorCategory category;
+
+	public AdvisorCategoryRelationship() {
+	}
 
 	public AdvisorCategoryRelationship(GraphProduct product, GraphAdvisorCategory category) {
 		this.product = product;

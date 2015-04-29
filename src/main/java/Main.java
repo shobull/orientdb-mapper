@@ -1,7 +1,4 @@
 import cz.cvut.palislub.config.AppConfig;
-import cz.cvut.palislub.example.repository.GraphOrderRepo;
-import cz.cvut.palislub.example.repository.GraphProductRepo;
-import cz.cvut.palislub.example.repository.GraphUserRepo;
 import cz.cvut.palislub.persist.OrientDbSchemaChecker;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -16,16 +13,21 @@ public class Main {
 
 		ApplicationContext ctx =
 				new AnnotationConfigApplicationContext(AppConfig.class);
-		GraphProductRepo productRepo = ctx.getBean(GraphProductRepo.class);
-		GraphUserRepo userRepo = ctx.getBean(GraphUserRepo.class);
+//		GraphProductRepo productRepo = ctx.getBean(GraphProductRepo.class);
+//		GraphUserRepo userRepo = ctx.getBean(GraphUserRepo.class);
 
-		GraphOrderRepo graphOrderRepo = ctx.getBean(GraphOrderRepo.class);
+//		GraphOrderRepo graphOrderRepo = ctx.getBean(GraphOrderRepo.class);
 		OrientDbSchemaChecker orientDbSchemaChecker = ctx.getBean(OrientDbSchemaChecker.class);
+		orientDbSchemaChecker.checkDbSchema();
 
-//		orientDbSchemaChecker.checkDbSchema();
+
+//		GraphProduct gp = new GraphProduct(123);
+//		productRepo.save(gp);
+//
+//		productRepo.getFreeDeliveryRecommendationProducts(500);
 
 
-		productRepo.getFreeDeliveryRecommendationProducts(500);
+//		OGlobalConfiguration.dumpConfiguration(System.out);
 
 
 //		List<GraphOrder> userList = Lists.newArrayList();

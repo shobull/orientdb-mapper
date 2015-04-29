@@ -4,6 +4,8 @@ import cz.cvut.palislub.annotations.Node;
 import cz.cvut.palislub.annotations.NodeProperty;
 import cz.cvut.palislub.annotations.Unique;
 
+import java.math.BigDecimal;
+
 /**
  * Created by lubos on 1.3.2015.
  */
@@ -18,16 +20,19 @@ public class GraphProduct {
 	private String name;
 
 	@NodeProperty
-	private long priceWithVat;
+	private BigDecimal price;
 
 	@NodeProperty
-	private long recommended;
+	private Boolean inSale;
 
 	@NodeProperty
-	private boolean inSale;
+	private Boolean inAction;
 
 	@NodeProperty
-	private int test;
+	private Boolean basketOffer;
+
+	public GraphProduct() {
+	}
 
 	public GraphProduct(long productId) {
 		this.productId = productId;
@@ -45,12 +50,18 @@ public class GraphProduct {
 		this.name = name;
 	}
 
-	public void setPriceWithVat(Long priceWithVat) {
-		this.priceWithVat = priceWithVat;
+	public void setPriceWithVat(BigDecimal priceWithVat) {
+		this.price = priceWithVat;
 	}
 
-	public void addRecommended() {
-		this.recommended++;
+	@Override
+	public String toString() {
+		return "GraphProduct{" +
+				"productId=" + productId +
+				", name='" + name + '\'' +
+				", priceWithVat=" + price +
+				", inAction=" + inAction +
+				", inSale=" + inSale +
+				'}';
 	}
-
 }

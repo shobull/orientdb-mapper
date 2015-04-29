@@ -2,6 +2,7 @@ package cz.cvut.palislub.persist;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.orientechnologies.orient.core.conflict.OAutoMergeRecordConflictStrategy;
 import com.orientechnologies.orient.core.intent.OIntentMassiveInsert;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -35,16 +36,17 @@ public class OrientDbManager {
 	@Autowired
 	OrientGraphFactory factory;
 
-
 	public OrientGraph getTxGraph() {
-		return factory.getTx();
+		OrientGraph graph = factory.getTx();
+		graph.setConflictStrategy(new OAutoMergeRecordConflictStrategy());
+		return graph;
 	}
 
 	/**
 	 * Vytvori uzel v databazi
 	 */
 	public OrientVertex createNode(CustomNode node) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		OrientVertex vertex = null;
 		try {
 			vertex = getNode(graph, node.getLabel() + "." + node.getUniqueKey(), node.getProperty(node.getUniqueKey()));
@@ -69,7 +71,7 @@ public class OrientDbManager {
 	 * Vytvori hranu v databazi
 	 */
 	public OrientEdge createRelationship(CustomRelationship relationship) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		OrientEdge edge = null;
 		try {
 			OrientVertex vertextFrom = getNode(graph, relationship.getNodeLabelFrom(), relationship.getNodeValueFrom());
@@ -112,7 +114,7 @@ public class OrientDbManager {
 
 
 	public void batchCreateNodes(Iterable<CustomNode> nodes) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		try {
 			graph.declareIntent(new OIntentMassiveInsert());
 
@@ -143,7 +145,7 @@ public class OrientDbManager {
 	}
 
 	public void batchCreateRelationships(Iterable<CustomRelationship> relationships) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		try {
 			graph.declareIntent(new OIntentMassiveInsert());
 			relationships.forEach(relationship -> {
@@ -190,7 +192,7 @@ public class OrientDbManager {
 	}
 
 	public List<Object> getIdsOfVertexByProperty(Class type, String propertyName, Object value) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 
 		Iterable<Vertex> vertices = graph.getVertices(annotationResolver.getNodeName(type) + "." + propertyName, value);
 
@@ -204,7 +206,7 @@ public class OrientDbManager {
 	}
 
 	public long count(Class clazz) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		long cnt;
 		if (annotationResolver.isNodeEntity(clazz)) {
 			cnt = graph.countVertices(annotationResolver.getNodeName(clazz));
@@ -216,7 +218,7 @@ public class OrientDbManager {
 	}
 
 	public long countEdges() {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		long cnt = graph.countEdges();
 		graph.shutdown();
 		return cnt;
@@ -224,14 +226,14 @@ public class OrientDbManager {
 
 
 	public long countVertices() {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		long cnt = graph.countVertices();
 		graph.shutdown();
 		return cnt;
 	}
 
 	public void removeAllNodes(Class clazz) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		try {
 			Iterator<Vertex> vertexIterator = graph.getVerticesOfClass(annotationResolver.getNodeName(clazz)).iterator();
 			while (vertexIterator.hasNext()) {
@@ -247,7 +249,7 @@ public class OrientDbManager {
 	}
 
 	public void clearDatabase() {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		try {
 			Iterator<Vertex> vertexIterator = graph.getVertices().iterator();
 			while (vertexIterator.hasNext()) {
@@ -273,19 +275,19 @@ public class OrientDbManager {
 	}
 
 	public Iterable<Vertex> listVertices(String typename, String[] keys, Object[] values) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		Iterable<Vertex> v = graph.getVertices(typename, keys, values);
 		return v;
 	}
 
 	public Iterable<Vertex> listVertices(String typename) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		Iterable<Vertex> v = graph.getVerticesOfClass(typename);
 		return v;
 	}
 
 	public void delete(String typename, String fieldname, Object value) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		try {
 			Iterable<Vertex> verticesToDelete = graph.getVertices(typename + "." + fieldname, value);
 			for (Vertex v : verticesToDelete) {
@@ -299,7 +301,7 @@ public class OrientDbManager {
 	}
 
 	public Vertex getById(String typename, String fieldname, Object id) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		Vertex v = null;
 		try {
 			v = graph.getVertexByKey(typename + "." + fieldname, id);
@@ -319,13 +321,13 @@ public class OrientDbManager {
 	}
 
 	public OrientVertex getVertexByRid(String rid) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		OrientVertex v = graph.getVertex(rid);
 		return v;
 	}
 
 	public OrientEdge getEdgeByRid(String rid) {
-		OrientGraph graph = factory.getTx();
+		OrientGraph graph = getTxGraph();
 		OrientEdge v = graph.getEdge(rid);
 		return v;
 	}

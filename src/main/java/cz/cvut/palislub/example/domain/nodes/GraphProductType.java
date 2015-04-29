@@ -17,6 +17,9 @@ public class GraphProductType {
 	@NodeProperty
 	private String name;
 
+	public GraphProductType() {
+	}
+
 	public long getProductTypeId() {
 		return productTypeId;
 	}

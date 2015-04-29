@@ -18,6 +18,9 @@ public class ProductTypeRelationship {
 	@NodeTo
 	private GraphProductType type;
 
+	public ProductTypeRelationship() {
+	}
+
 	public ProductTypeRelationship(GraphProduct product, GraphProductType type) {
 		this.product = product;
 		this.type = type;

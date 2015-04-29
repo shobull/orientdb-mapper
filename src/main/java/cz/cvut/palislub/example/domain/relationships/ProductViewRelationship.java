@@ -7,9 +7,10 @@ import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 import cz.cvut.palislub.example.domain.nodes.GraphUser;
 
 /**
- * Created by lubos on 16.3.2015.
+ * User: L
+ * Date: 11. 3. 2015
  */
-@Relationship(type = "viewed_product")
+@Relationship(type = "viewed_product", unique = false)
 public class ProductViewRelationship {
 
 	@NodeFrom
@@ -18,8 +19,19 @@ public class ProductViewRelationship {
 	@NodeTo
 	private GraphProduct product;
 
+	public ProductViewRelationship() {
+	}
+
 	public ProductViewRelationship(GraphUser user, GraphProduct product) {
 		this.user = user;
 		this.product = product;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductViewRelationship{" +
+				"user=" + user +
+				", product=" + product +
+				'}';
 	}
 }

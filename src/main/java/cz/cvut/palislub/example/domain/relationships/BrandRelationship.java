@@ -7,10 +7,10 @@ import cz.cvut.palislub.example.domain.nodes.GraphBrand;
 import cz.cvut.palislub.example.domain.nodes.GraphProduct;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 9. 3. 2015
  */
-@Relationship(type = "brand_of", unique = true)
+@Relationship(type = "brand_of")
 public class BrandRelationship {
 
 	@NodeFrom
@@ -18,6 +18,9 @@ public class BrandRelationship {
 
 	@NodeTo
 	private GraphBrand brand;
+
+	public BrandRelationship() {
+	}
 
 	public BrandRelationship(GraphProduct product, GraphBrand brand) {
 		this.product = product;

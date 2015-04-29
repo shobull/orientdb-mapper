@@ -10,7 +10,7 @@ import cz.cvut.palislub.example.domain.nodes.GraphWebPage;
 import java.util.Date;
 
 /**
- * User: Lubos Palisek
+ * User: L
  * Date: 2. 3. 2015
  */
 @Relationship(type = "viewed_page", unique = false)
@@ -55,19 +55,13 @@ public class PageViewRelationship {
 		this.visitedTime = visitedTime;
 	}
 
-	public void setVisitLength(long visitLength) {
-		this.visitLength = visitLength;
-	}
-
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("PageViewRelationship{");
-		sb.append("user=").append(user);
-		sb.append(", webpage=").append(webpage);
-		sb.append(", enterVisit=").append(enterVisit);
-		sb.append(", visitedTime=").append(visitedTime);
-		sb.append(", visitLength=").append(visitLength);
-		sb.append('}');
-		return sb.toString();
+		return "PageViewRelationship{" +
+				"user=" + user +
+				", webpage=" + webpage +
+				", enterVisit=" + enterVisit +
+				", visitedTime=" + visitedTime +
+				'}';
 	}
 }
